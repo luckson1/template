@@ -1,0 +1,152 @@
+---
+description: tRPC API architecture patterns and best practices
+globs: ["src/server/api/**/*.ts", "src/server/api/**/*.tsx"]
+alwaysApply: true
+---
+# tRPC API Architecture Patterns
+
+## Core Guidelines
+- Structure APIs in layers: router → service → data access
+- Define input validation with Zod schemas (`z.object({id: z.string().uuid()})`)
+- Create pure service functions that receive context as parameter
+- Create reusable validation schemas in separate files
+- Implement proper error handling with custom error classes
+- Write clean, idiomatic TypeScript code with proper type annotations
+- Implement error handling and edge cases
+- Use modern ES6+ features appropriately
+- For methods with more than one argument, use object destructuring
+- Consider performance implications, especially for larger datasets
+- Use functional and declarative programming patterns; avoid classes
+- Prefer iteration and modularization over code duplication
+- Always use interfaces and not types when declaring types
+
+## File Structure
+```
+src/server/api/
+├── routers/
+│   ├── user.ts
+│   ├── post.ts
+│   
+├── services/
+│   ├── user.ts
+│   └── post.ts
+├── schemas/
+│   ├── user.ts
+│   └── post.ts
+└── trpc.ts
+```
+
+## Schema Pattern
+
+```typescript
+// src/server/api/schemas/user.ts
+import { z } from 'zod';
+
+
+export const userSchema = z.object({
+  id: z.string().uuid().optional(),
+  email: z.string().email('Invalid email format'),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  role: z.enum(['USER', 'ADMIN']).default('USER'),
+});
+
+export const getUserByIdSchema = z.object({
+  id: z.string().uuid('Invalid UUID format'),
+});
+
+export type IUser = z.infer<typeof userSchema>;
+```
+
+## Service Pattern
+
+```typescript
+// src/server/api/services/user.ts
+import { TRPCError } from '@trpc/server';
+import type { Context } from '../trpc';
+import type { User }  from "@prisma/client";
+
+interface IUserServiceContext {
+  ctx: Context;
+  input: Partial<User>;
+}
+
+export const userService = {
+  getById: async ({ ctx, input }: { ctx: Context; input: { id: string } }) => {
+    try {
+      const user = await ctx.db.user.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'User not found',
+        });
+      }
+
+      return user;
+    } catch (error) {
+      if (error instanceof TRPCError) throw error;
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch user',
+      });
+    }
+  },
+
+  create: async ({ ctx, input }: IUserServiceContext) => {
+    try {
+      return await ctx.db.user.create({
+        data: input,
+      });
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: 'Email already exists',
+        });
+      }
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to create user',
+      });
+    }
+  },
+};
+```
+
+## Router Pattern
+
+```typescript
+// src/server/api/routers/user.ts
+import { router, publicProcedure, protectedProcedure } from '../trpc';
+import { userSchema, getUserByIdSchema } from '../schemas/user.schema';
+import { userService } from '../services/user.service';
+
+export const userRouter = router({
+  getById: publicProcedure
+    .input(getUserByIdSchema)
+    .query(({ ctx, input }) => userService.getById({ ctx, input })),
+  
+  create: protectedProcedure
+    .input(userSchema.omit({ id: true }))
+    .mutation(({ ctx, input }) => userService.create({ ctx, input })),
+  
+  update: protectedProcedure
+    .input(userSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...data } = input;
+      return userService.update({ ctx, input: { id, data } });
+    }),
+});
+```
+
+## Error Handling Pattern
+
+
+use trpc error handling
+
+
+
+
+``` 

@@ -1,0 +1,14 @@
+---
+description: Form handling best practices with React Hook Form and Zod
+globs: ["src/**/*.tsx", "src/**/*.ts"]
+alwaysApply: true
+---
+# Form Handling Patterns
+
+## Core Guidelines
+- Always use React Hook Form for form state management
+- Use Zod for form validation schemas
+- Use nullish coalescing (`??`) over OR (`||`) for default values
+- Implement proper type safety with `zodResolver`
+- Handle form submission states (loading, error, success)
+

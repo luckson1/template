@@ -1,0 +1,13 @@
+---
+description: Package management best practices and standards using pnpm
+globs: ["package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml"]
+alwaysApply: true
+---
+# Package Management Patterns
+
+## Core Guidelines
+- Use `pnpm` as the primary package manager for the project
+- Use `pnpm dlx` instead of `npx` for one-off package execution
+- Leverage pnpm workspaces for monorepo management
+- Use exact versions in `package.json` for better reproducibility
+- Maintain a clean dependency tree with proper peer dependencies

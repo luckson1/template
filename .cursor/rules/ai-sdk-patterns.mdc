@@ -1,0 +1,200 @@
+---
+description: Best practices for implementing AI features using the AI SDK
+globs: ["src/app/api/**/*.ts", "src/app/api/**/*.tsx", "src/server/api/**/*.ts", "src/server/api/**/*.tsx"]
+alwaysApply: false
+---
+# AI SDK Implementation Patterns
+
+## Core Guidelines
+- Use `generateObject` with typed schemas for structured AI responses
+- Implement `streamText` for real-time streaming with chat interfaces
+- Leverage multiple model providers (Google, Anthropic, OpenAI) based on task requirements
+- Structure prompts with clear sections using XML-like tags (`<studyMaterial>`, `<guidelines>`)
+- Pass file content to AI models using the multimodal content format
+- Implement proper error handling for AI model calls
+- Use temperature settings appropriate to the task (higher for creative, lower for factual)
+- Leverage parallel AI calls with `Promise.all` for efficiency
+
+## Structured Response Generation
+
+```typescript
+// Define a schema for the AI response
+const MultiChoiceQuestionSchema = z.object({
+  question: z.string().min(10),
+  options: z.array(z.string()).min(4).max(5),
+  correctAnswers: z.array(z.string()).min(1),
+  rationale: z.string().optional(),
+  difficulty: z.number().min(1).max(5).optional(),
+  sources: z.array(z.object({
+    title: z.string(),
+    url: z.string().optional(),
+  })).optional(),
+});
+
+// Generate structured content with the schema
+const { object: questions } = await generateObject({
+  model: google("gemini-2.0-flash-001"),
+  temperature: 1.0,
+  output: "array",
+  schema: MultiChoiceQuestionSchema,
+  messages: [
+    {
+      role: "user",
+      content: [
+        // Include files for multimodal context
+        ...(files?.map((file) => ({
+          type: "file" as const,
+          data: file.buffer,
+          mimeType: file.mimeType,
+        })) ?? []),
+        {
+          type: "text",
+          text: promptText,
+        },
+      ],
+    },
+  ],
+});
+```
+
+## Streaming Chat Implementation
+
+```typescript
+// Stream the response for a chat interface
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const lastMessage = body.messages[body.messages.length - 1];
+    
+    // Save the user message to database
+    await db.message.create({
+      data: {
+        content: lastMessage.content,
+        role: lastMessage.role,
+        userId: userId,
+      },
+    });
+    
+    // Stream the AI response
+    const result = streamText({
+      model: google("gemini-2.0-flash-001"),
+      messages: [
+        {
+          role: "system",
+          content: `You are a helpful AI assistant. ${contextInformation}`,
+        },
+        ...body.messages,
+      ],
+      onFinish: async (event) => {
+        // Save the AI response to database
+        await db.message.create({
+          data: {
+            content: event.text,
+            role: "assistant",
+            userId: userId,
+          },
+        });
+      },
+    });
+
+    return result.toDataStreamResponse();
+  } catch (error) {
+    console.error("Chat API Error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
+  }
+}
+```
+
+## Parallel AI Processing
+
+```typescript
+// Generate multiple AI responses in parallel
+const [
+  mcqResponse,
+  flashcardsResponse,
+  saqResponse,
+] = await Promise.all([
+  // Generate MCQs
+  generateObject({
+    model: google("gemini-2.0-flash-001"),
+    temperature: 1.0,
+    output: "array",
+    schema: MultiChoiceQuestionSchema,
+    messages: [{ role: "user", content: mcqPrompt }],
+  }),
+  
+  // Generate flashcards
+  generateObject({
+    model: google("gemini-2.0-flash-001"),
+    temperature: 0.5,
+    output: "array",
+    schema: FlashcardSchema,
+    messages: [{ role: "user", content: flashcardPrompt }],
+  }),
+  
+  // Generate short answer questions
+  generateObject({
+    model: anthropic("claude-3-5-sonnet-latest"),
+    temperature: 0.8,
+    output: "array",
+    schema: ShortAnswerSchema,
+    messages: [{ role: "user", content: saqPrompt }],
+  }),
+]);
+```
+
+## Structured Prompt Engineering
+
+```typescript
+// Create a well-structured prompt with clear sections
+function createStructuredPrompt({
+  topic,
+  context,
+  examples,
+  instructions,
+}: PromptParams): string {
+  return `
+<context>
+${context}
+</context>
+
+<topic_information>
+${JSON.stringify(topic)}
+</topic_information>
+
+<examples>
+${examples.join('\n\n')}
+</examples>
+
+<instructions>
+${instructions}
+</instructions>
+
+Please provide your response in JSON format.
+`;
+}
+```
+
+## File Structure Guidelines
+- Place AI-related schemas in `src/types/ai-schemas.ts`
+- Store AI service implementations in `src/services/ai/`
+- Keep API routes in `src/app/api/ai/`
+- Place AI utility functions in `src/utils/ai/`
+- Store AI-related constants in `src/constants/ai.ts`
+
+## Type Safety Best Practices
+- Use Zod schemas for runtime validation of AI responses
+- Implement proper error types for AI service failures
+- Use TypeScript's `satisfies` operator for type checking without widening
+- Leverage discriminated unions for different AI response types
+- Use readonly arrays for immutable AI response data
+
+## Error Handling Patterns
+- Implement proper error boundaries for AI components
+- Use custom error classes for AI-specific errors
+- Log AI errors with appropriate context
+- Implement retry logic for transient AI failures
+- Provide user-friendly error messages for AI failures 
