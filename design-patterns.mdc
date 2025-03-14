@@ -1,0 +1,91 @@
+# Design Patterns
+
+## Color Palette
+
+### Primary Colors
+- **Base Background**: Deep purple/navy (#2d2b40 or similar) serves as the main app background
+- **Primary Accent**: Vibrant purple (#6c5ce7 or similar) for buttons, selected items, and interactive elements
+- **Secondary Accent**: Teal/mint (#66d9c9 or similar) for secondary actions, progress indicators, and accents
+
+### Supporting Colors
+- **Card Background**: Pure white (#ffffff) for content cards and modals
+- **Dark Mode Card Background**: Near-black (#1e1d2b) for dark mode cards
+- **Text - Primary**: Near-black (#212121) on light backgrounds
+- **Text - Secondary**: Gray (#6b7280) for secondary information
+- **Text - Light**: White (#ffffff) on dark backgrounds and colored buttons
+- **Notification/Accent**: Red (#e74c3c) for notification indicators and important badges
+
+## Typography
+
+- **Font Family**: Clean sans-serif typeface (SF Pro, Inter, or Outfit)
+- **Hierarchy**:
+  - **Heading Large**: 24-28px, Semi-bold (600)
+  - **Heading Medium**: 18-20px, Semi-bold (600)
+  - **Body Text**: 14-16px, Regular (400)
+  - **Secondary/Caption**: 12-13px, Regular (400)
+  - **Numerical Data**: Slightly larger than corresponding text, Medium (500)
+- **Line Height**: Approximately 1.4-1.5× font size for optimal readability
+
+## Component Styling
+
+### Cards & Containers
+- **Border Radius**: Consistent 8-12px rounded corners across all cards and UI elements
+- **Card Elevation**: Very subtle shadow (2-4px blur, 10-20% opacity)
+- **Inner Content Padding**: Consistent 24px padding inside cards
+- **Card Spacing**: 16-20px gaps between adjacent cards
+- **Section Separation**: 24-32px vertical spacing between major sections
+
+### Buttons & Interactive Elements
+- **Primary Button**: Filled purple with white text, slightly rounded corners (8px)
+- **Secondary Button**: Light purple or white with purple text/border
+- **Hover States**: Subtle darkening (5-10%) on hover
+- **Active Elements**: Highlighted with primary purple background and white text
+- **Icons**: Thin stroke (1.5-2px), minimalist style, consistent with text color
+
+### Navigation & Sidebar
+- **Sidebar Width**: Appropriately proportioned (64-80px collapsed, 240-280px expanded)
+- **Selected Item**: Purple background highlight with white icon/text
+- **Hover Item**: Subtle background color change (5-10% lighter/darker)
+- **Icon Size**: Consistent 20-24px height
+- **Vertical Spacing**: 16-20px between nav items
+
+### Form Elements
+- **Input Fields**: Light gray/lavender background (#f5f5ff or similar), 8px border radius
+- **Input Focus**: Subtle purple border/glow on focus
+- **Checkboxes/Toggles**: Purple when active, gray when inactive
+- **Dropdowns**: Clean white background, subtle shadow on open
+
+## Visual Patterns & Details
+
+### Data Visualization
+- **Charts & Graphs**: 
+  - Purple and teal as primary colors
+  - Pastel secondary colors when needed
+  - Clean, rounded edges on bars/elements
+  - Light grid lines (10-15% opacity)
+  - Smooth transitions between data points
+
+### Spacing System
+- **Base Unit**: 4px as base unit
+- **Component Padding**: Generally multiples of 8px (8, 16, 24, 32)
+- **Micro-spacing**: 4-8px between closely related elements
+- **Macro-spacing**: 24-32px between major sections
+
+### Special Effects
+- **Avatars/User Images**: Circular with subtle border
+- **Status Indicators**: Small colored dots (4-6px)
+- **Notifications**: Small, bright purple circles with white numbers
+- **Progress Elements**: Smooth, rounded indicators using the teal-purple gradient
+
+### Layout Principles
+- **Card Grid**: Clean, aligned cards with consistent spacing
+- **Whitespace**: Generous breathing room between elements
+- **Alignment**: Strong left alignment for text and content
+- **Hierarchy**: Clear visual hierarchy through size, weight, and color
+
+### UI "Feel" Elements
+- **Modernity**: Clean, minimal, flat design with subtle depth
+- **Professionalism**: Balanced color usage, not overly playful
+- **Focus**: High contrast for important data/actions
+- **Breathing Room**: Generous whitespace creates a calm experience
+- **Consistency**: Unified styling across all components 

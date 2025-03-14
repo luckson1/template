@@ -1,29 +1,101 @@
-# Create T3 App
+# Modern UI Design System
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+A comprehensive design system with a purple/teal color scheme, featuring clean components and consistent styling for modern web applications.
 
-## What's next? How do I make an app with this?
+## Overview
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+This design system provides a complete set of styles, components, and patterns for building beautiful, consistent user interfaces. It features:
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+- A distinctive purple and teal color palette
+- Clean, modern typography
+- Consistent spacing and layout principles
+- Reusable UI components
+- Responsive design patterns
+- Dark mode support
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## Getting Started
 
-## Learn More
+1. Include the CSS files in your project:
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+   ```html
+   <link rel="stylesheet" href="styles/global.css" />
+   ```
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+2. Add the Inter font from Google Fonts:
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+   ```html
+   <link
+     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+     rel="stylesheet"
+   />
+   ```
 
-## How do I deploy this?
+3. Start using the components and utility classes in your HTML.
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+## File Structure
+
+- `design-patterns.mdc` - Design system documentation
+- `styles/`
+  - `variables.css` - CSS variables for colors, typography, spacing, etc.
+  - `components.css` - Component-specific styles
+  - `global.css` - Global styles and imports
+- `components/` - React component examples
+  - `Button.js` - Button component
+  - `Card.js` - Card component
+- `example.html` - Example page showcasing the design system
+
+## Color Palette
+
+### Primary Colors
+
+- **Base Background**: Deep purple/navy (#2d2b40)
+- **Primary Accent**: Vibrant purple (#6c5ce7)
+- **Secondary Accent**: Teal/mint (#66d9c9)
+
+### Supporting Colors
+
+- **Card Background**: Pure white (#ffffff)
+- **Dark Mode Card Background**: Near-black (#1e1d2b)
+- **Text - Primary**: Near-black (#212121)
+- **Text - Secondary**: Gray (#6b7280)
+- **Text - Light**: White (#ffffff)
+- **Notification/Accent**: Red (#e74c3c)
+
+## Components
+
+The design system includes the following components:
+
+- Buttons (Primary, Secondary, Text)
+- Cards
+- Form elements
+- Navigation items
+- Badges
+- Avatars
+- Progress bars
+- Status indicators
+- Notification badges
+
+## Utility Classes
+
+The system provides utility classes for:
+
+- Typography (headings, body text, captions)
+- Layout (flex, grid, containers)
+- Spacing (margin, padding)
+- Alignment (items-center, justify-between)
+
+## Example
+
+To see the design system in action, open `example.html` in your browser.
+
+## Customization
+
+You can customize the design system by modifying the CSS variables in `styles/variables.css`.
+
+## Browser Support
+
+This design system uses modern CSS features like CSS variables and color-mix(), which are supported in all modern browsers.
+
+## License
+
+MIT
