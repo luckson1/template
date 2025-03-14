@@ -35,8 +35,9 @@ model Organization {
     // Billing data could be added here or in a separate model
     billingEmail       String?
     billingName        String?
-    stripeCustomerId   String? @unique
+    stripeCustomerId   String?      @unique
     subscriptionStatus String? // 'active', 'trialing', 'canceled', etc.
+    invitations        Invitation[]
 
     @@index([slug])
 }
@@ -102,6 +103,32 @@ model UserTeam {
     @@index([userId])
 }
 
+enum InvitationStatus {
+    PENDING
+    ACCEPTED
+    EXPIRED
+    REVOKED
+}
+
+model Invitation {
+    id             String           @id @default(cuid())
+    email          String
+    token          String           @unique
+    status         InvitationStatus @default(PENDING)
+    role           OrganizationRole @default(MEMBER)
+    organizationId String
+    organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    inviterId      String
+    inviter        User             @relation(fields: [inviterId], references: [id])
+    expiresAt      DateTime
+    createdAt      DateTime         @default(now())
+    updatedAt      DateTime         @updatedAt
+
+    @@index([organizationId])
+    @@index([email])
+    @@index([status])
+}
+
 // Necessary for Next auth
 model Account {
     id                       String  @id @default(cuid())
@@ -151,6 +178,7 @@ model User {
 
     // User preferences
     defaultOrganizationId String?
+    invitations           Invitation[]
 }
 
 model VerificationToken {
