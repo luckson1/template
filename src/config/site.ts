@@ -98,6 +98,39 @@ export const siteConfig = {
       // Only include if you have actual ratings
     },
   },
+
+  // Authentication configuration
+  auth: {
+    // Providers enabled in the application
+    providers: [
+      {
+        name: "google",
+        displayName: "Google",
+        icon: "/icons/google.svg",
+        enabled: true,
+      },
+      {
+        name: "discord",
+        displayName: "Discord",
+        icon: "/icons/discord.svg",
+        enabled: true,
+      },
+      {
+        name: "email",
+        displayName: "Email",
+        icon: "/icons/mail.svg",
+        enabled: true,
+      },
+    ],
+    // Pages for authentication flows
+    pages: {
+      signIn: "/login",
+      signOut: "/logout",
+      error: "/error",
+      verifyRequest: "/verify-request",
+      newUser: "/onboarding", // New users will be directed here on first sign in
+    },
+  },
 };
 
 // Helper functions
