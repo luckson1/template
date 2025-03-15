@@ -6,6 +6,7 @@ import EmailProvider from "next-auth/providers/resend";
 
 import { env } from "@/env";
 import { db } from "@/server/db";
+import { organizationService } from "../api/services/organization.service";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -43,10 +44,7 @@ export const authConfig = {
       apiKey: env.RESEND_API_KEY,
       from: env.EMAIL_FROM_ADDRESS,
     }),
-    DiscordProvider({
-      clientId: env.AUTH_DISCORD_ID,
-      clientSecret: env.AUTH_DISCORD_SECRET,
-    }),
+
     /**
      * ...add more providers here.
      *
@@ -72,5 +70,21 @@ export const authConfig = {
         id: user.id,
       },
     }),
+  },
+  events: {
+    createUser: async ({ user }) => {
+      // Create a default organization for the new user
+      try {
+        if (user.id) {
+          await organizationService.createDefaultForUser({
+            userId: user.id,
+            name: user.name,
+          });
+          console.log(`Created default organization for user ${user.id}`);
+        }
+      } catch (error) {
+        console.error("Error creating default organization:", error);
+      }
+    },
   },
 } satisfies NextAuthConfig;

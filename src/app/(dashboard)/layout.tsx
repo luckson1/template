@@ -14,14 +14,16 @@ export default async function DashboardLayout({
   sidebarConfig = defaultSidebarConfig,
 }: DashboardLayoutProps) {
   // Check if user is authenticated
-  // const session = await auth();
+  const session = await auth();
 
-  // // If not authenticated, sredirect to login page
-  // if (!session) {
-  //   redirect("/login");
-  // }
-
+  // If not authenticated, sredirect to login page
+  if (!session) {
+    redirect("/login");
+  }
+  const user = session.user;
   return (
-    <DashboardClient sidebarConfig={sidebarConfig}>{children}</DashboardClient>
+    <DashboardClient user={user} sidebarConfig={sidebarConfig}>
+      {children}
+    </DashboardClient>
   );
 }

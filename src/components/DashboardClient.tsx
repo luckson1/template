@@ -16,20 +16,23 @@ import { NavMain } from "@/components/NavMain";
 import { getPageTitleFromPath, type SidebarConfig } from "@/config/sidebar";
 import { useNavigationItems } from "./NavigationItems";
 import { useUserNavigation } from "./UserNavigation";
+import { type User } from "next-auth";
 
 interface DashboardClientProps {
   children: ReactNode;
   sidebarConfig: SidebarConfig;
+  user: User;
 }
 
 export function DashboardClient({
   children,
   sidebarConfig,
+  user,
 }: DashboardClientProps) {
   const pathname = usePathname();
   const pageTitle = getPageTitleFromPath(pathname, sidebarConfig);
   const navItems = useNavigationItems();
-  const { user, customNavGroups } = useUserNavigation();
+  const { customNavGroups } = useUserNavigation();
 
   return (
     <SidebarProvider defaultOpen={true}>
