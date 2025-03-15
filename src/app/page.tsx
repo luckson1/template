@@ -1,8 +1,15 @@
 import Link from "next/link";
+import { type Metadata } from "next";
+import { siteConfig } from "@/config/site";
 
 import { LatestPost } from "@/app/_components/post";
 import { auth } from "@/server/auth";
 import { api, HydrateClient } from "@/trpc/server";
+
+export const metadata: Metadata = {
+  title: "Home | AI Image Editor",
+  description: "Welcome to the AI Image Editor - Transform your photos with AI",
+};
 
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
@@ -17,8 +24,9 @@ export default async function Home() {
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
+            {siteConfig.name}
           </h1>
+          <p className="text-center text-2xl">{siteConfig.description}</p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
             <Link
               className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
@@ -63,6 +71,34 @@ export default async function Home() {
 
           {session?.user && <LatestPost />}
         </div>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: siteConfig.name,
+              applicationCategory: siteConfig.application.category,
+              operatingSystem: siteConfig.application.operatingSystem,
+              offers: {
+                "@type": "Offer",
+                price: siteConfig.application.pricing.value,
+                priceCurrency: siteConfig.application.pricing.currency,
+              },
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: siteConfig.application.rating.value,
+                ratingCount: siteConfig.application.rating.count,
+              },
+              description: siteConfig.description,
+              screenshot: siteConfig.application.screenshots.map(
+                (screenshot) => `${siteConfig.url}${screenshot.url}`,
+              ),
+              featureList: siteConfig.application.features.join(", "),
+              keywords: siteConfig.keywords.join(", "),
+            }),
+          }}
+        />
       </main>
     </HydrateClient>
   );

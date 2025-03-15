@@ -99,33 +99,6 @@ export default function SupportPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Support Hours</CardTitle>
-              <CardDescription>
-                Our team is available during the following hours:
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Monday - Friday</span>
-                <span>9:00 AM - 8:00 PM ET</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Saturday</span>
-                <span>10:00 AM - 6:00 PM ET</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Sunday</span>
-                <span>Closed</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                For critical issues outside of business hours, please use the
-                emergency contact option.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
               <CardTitle>Alternative Contact Methods</CardTitle>
               <CardDescription>
                 Other ways to reach our support team:
