@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { siteConfig } from "@/config/site";
 export default function OnboardingPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -67,7 +67,7 @@ export default function OnboardingPage() {
         <div className="flex flex-col items-center space-y-2 text-center">
           <div className="flex items-center gap-2">
             <Building2 className="h-8 w-8" />
-            <h1 className="text-2xl font-bold">B2B SaaS</h1>
+            <h1 className="text-2xl font-bold">{siteConfig.name}</h1>
           </div>
           <h2 className="text-2xl font-semibold tracking-tight">
             Complete your profile

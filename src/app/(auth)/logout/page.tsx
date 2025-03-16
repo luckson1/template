@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
+import { siteConfig } from "@/config/site";
 export default function LogoutPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +32,7 @@ export default function LogoutPage() {
         <div className="flex flex-col items-center space-y-2 text-center">
           <div className="flex items-center gap-2">
             <Building2 className="h-8 w-8" />
-            <h1 className="text-2xl font-bold">B2B SaaS</h1>
+            <h1 className="text-2xl font-bold">{siteConfig.name}</h1>
           </div>
         </div>
 

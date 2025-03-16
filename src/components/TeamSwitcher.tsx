@@ -4,6 +4,7 @@ import * as React from "react";
 import { ChevronsUpDown, Plus, Building2 } from "lucide-react";
 import { api } from "@/trpc/react";
 import type { RouterOutputs } from "@/trpc/react";
+import { useOrganization } from "@/hooks/useOrganization";
 
 import {
   DropdownMenu,
@@ -29,31 +30,11 @@ type Organization =
 
 export function TeamSwitcher() {
   const { isMobile } = useSidebar();
-  const { data, isLoading } = api.organization.getUserOrganizations.useQuery(
-    {},
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { selectedOrg, organizations, setSelectedOrg, isLoading } =
+    useOrganization();
 
   // Add state for the modal
   const [addOrgModalOpen, setAddOrgModalOpen] = React.useState(false);
-
-
-
-  // Safely handle the data
-  const organizations = React.useMemo(() => data ?? [], [data]);
-  const [activeOrg, setActiveOrg] = React.useState<Organization | null>(null);
-
-  // Set the active organization when data is loaded
-  React.useEffect(() => {
-    if (organizations.length > 0 && !activeOrg) {
-      const firstOrg = organizations[0];
-      if (firstOrg) {
-        setActiveOrg(firstOrg);
-      }
-    }
-  }, [organizations, activeOrg]);
 
   // Loading state
   if (isLoading) {
@@ -104,7 +85,25 @@ export function TeamSwitcher() {
     );
   }
 
-  if (!activeOrg) {
+  // If we have organizations but no active one yet (still loading or setting up)
+  if (!selectedOrg && organizations.length > 0) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <div className="flex w-full items-center gap-2 p-2">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <div className="flex-1">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="mt-1 h-3 w-16" />
+            </div>
+          </div>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
+
+  // No active organization (should not happen with the logic above, but just in case)
+  if (!selectedOrg) {
     return null;
   }
 
@@ -124,9 +123,9 @@ export function TeamSwitcher() {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
-                    {activeOrg.name}
+                    {selectedOrg.name}
                   </span>
-                  <span className="truncate text-xs">{activeOrg.plan}</span>
+                  <span className="truncate text-xs">{selectedOrg.plan}</span>
                 </div>
                 <ChevronsUpDown className="ml-auto" />
               </SidebarMenuButton>
@@ -143,7 +142,7 @@ export function TeamSwitcher() {
               {organizations.map((org, index) => (
                 <DropdownMenuItem
                   key={org.id}
-                  onClick={() => setActiveOrg(org)}
+                  onClick={() => setSelectedOrg(org.id)}
                   className="gap-2 p-2"
                 >
                   <div className="flex size-6 items-center justify-center rounded-sm border">

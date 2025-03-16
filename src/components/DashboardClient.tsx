@@ -10,7 +10,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Building2, Users } from "lucide-react";
 import { NavUser } from "@/components/NavUser";
 import { NavMain } from "@/components/NavMain";
 import { getPageTitleFromPath, type SidebarConfig } from "@/config/sidebar";
@@ -40,12 +39,7 @@ export function DashboardClient({
       <div className="flex min-h-screen w-full">
         <Sidebar variant="inset" collapsible="icon">
           <SidebarHeader>
-            <div className="flex flex-col gap-2 px-2">
-              <div className="flex items-center gap-2">
-                <Building2 className="h-6 w-6" />
-              </div>
-              <TeamSwitcher />
-            </div>
+            <TeamSwitcher />
           </SidebarHeader>
           <SidebarContent>
             <NavMain items={navItems} groupTitle="Main" />
@@ -57,7 +51,7 @@ export function DashboardClient({
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-          <div className="sticky top-0 z-10 flex w-full items-center justify-between rounded-t-lg border-b bg-background p-4">
+          <div className="b sticky top-0 z-10 flex w-full items-center justify-between rounded-t-lg border-b bg-background p-4">
             <div className="flex items-center gap-2">
               <SidebarTrigger />
               <h1 className="text-xl font-semibold">{pageTitle}</h1>

@@ -10,14 +10,36 @@ export const organizationSchema = z.object({
 });
 
 export const createOrganizationSchema = z.object({
-  name: z.string().min(2, "Organization name must be at least 2 characters"),
-  slug: z.string().min(2, "Slug must be at least 2 characters").optional(),
-  logo: z.string().optional(),
-  website: z.string().url().optional(),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  slug: z
+    .string()
+    .min(3, "Slug must be at least 3 characters")
+
+    .regex(
+      /^[a-z0-9-]+$/,
+      "Slug can only contain lowercase letters, numbers, and hyphens",
+    )
+    .optional()
+    .nullable(),
+  logo: z.string().url().optional().nullable(),
+  website: z.string().url().optional().nullable(),
+});
+
+export const updateOrganizationSchema = z.object({
+  id: z.string(),
+  name: z.string().min(2, "Name must be at least 2 characters").optional(),
+  logo: z.string().url().optional().nullable(),
+  website: z.string().url().optional().nullable(),
+  billingEmail: z.string().email("Invalid email format").optional().nullable(),
+  billingName: z.string().optional().nullable(),
 });
 
 export const getOrganizationByIdSchema = z.object({
-  id: z.string().cuid(),
+  id: z.string(),
+});
+
+export const getOrganizationBySlugSchema = z.object({
+  slug: z.string(),
 });
 
 export const getUserOrganizationsSchema = z.object({
@@ -32,7 +54,8 @@ export const addUserToOrganizationSchema = z.object({
 });
 
 export type IOrganization = z.infer<typeof organizationSchema>;
-export type ICreateOrganization = z.infer<typeof createOrganizationSchema>;
+export type CreateOrganization = z.infer<typeof createOrganizationSchema>;
+export type UpdateOrganization = z.infer<typeof updateOrganizationSchema>;
 export type IAddUserToOrganization = z.infer<
   typeof addUserToOrganizationSchema
 >;

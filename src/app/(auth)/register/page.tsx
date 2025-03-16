@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-
+import { siteConfig } from "@/config/site";
 export default function RegisterPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -73,7 +73,7 @@ export default function RegisterPage() {
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <GalleryVerticalEnd className="size-4" />
           </div>
-          B2B SaaS
+          {siteConfig.name}
         </a>
 
         <Card className="w-full">

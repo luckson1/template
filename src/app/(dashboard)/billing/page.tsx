@@ -54,7 +54,7 @@ const invoices = [
 
 export default function BillingPage() {
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Billing</h2>
@@ -69,7 +69,7 @@ export default function BillingPage() {
       </div>
 
       {/* Current Plan */}
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>Current Plan</CardTitle>
           <CardDescription>
@@ -106,7 +106,7 @@ export default function BillingPage() {
       </Card>
 
       {/* Billing History */}
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>Billing History</CardTitle>
           <CardDescription>

@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Building2, Menu, X } from "lucide-react";
-
+import { siteConfig } from "@/config/site";
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
@@ -10,7 +10,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
             <Building2 className="h-6 w-6" />
-            <span className="text-lg font-bold">B2B SaaS</span>
+            <span className="text-lg font-bold">{siteConfig.name}</span>
           </div>
 
           <nav className="hidden items-center gap-6 md:flex">
@@ -71,7 +71,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
             <div className="col-span-2 lg:col-span-1">
               <div className="flex items-center gap-2">
                 <Building2 className="h-6 w-6" />
-                <span className="text-lg font-bold">B2B SaaS</span>
+                <span className="text-lg font-bold">{siteConfig.name}</span>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
                 Empowering businesses with powerful SaaS solutions since 2023.
@@ -195,8 +195,8 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
 
           <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-6 md:flex-row">
             <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} B2B SaaS, Inc. All rights
-              reserved.
+              &copy; {new Date().getFullYear()} {siteConfig.name}, Inc. All
+              rights reserved.
             </p>
             <div className="flex items-center gap-4">
               <Link

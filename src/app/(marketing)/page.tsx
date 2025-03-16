@@ -15,7 +15,7 @@ import {
   Shield,
   Zap,
 } from "lucide-react";
-
+import { siteConfig } from "@/config/site";
 export default function HomePage() {
   return (
     <div className="flex flex-col">
@@ -26,7 +26,7 @@ export default function HomePage() {
             <div className="flex flex-col justify-center space-y-4">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                  The Ultimate B2B SaaS Platform
+                  The Ultimate {siteConfig.name} Platform
                 </h1>
                 <p className="max-w-[600px] text-muted-foreground md:text-xl">
                   Streamline your business operations, increase productivity,
@@ -222,9 +222,9 @@ export default function HomePage() {
                 </div>
                 <div className="mt-4">
                   <p className="text-sm text-muted-foreground">
-                    "This B2B SaaS platform has transformed our business
-                    operations. The analytics tools are powerful, and the
-                    automation features have saved us countless hours."
+                    &quot;This {siteConfig.name} platform has transformed our
+                    business operations. The analytics tools are powerful, and
+                    the automation features have saved us countless hours.&quot;
                   </p>
                 </div>
                 <div className="mt-4 flex items-center">

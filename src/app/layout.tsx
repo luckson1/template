@@ -5,6 +5,7 @@ import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { siteConfig } from "@/config/site";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: siteConfig.title.default,
@@ -48,6 +49,7 @@ export default function RootLayout({
       </head>
       <body>
         <TRPCReactProvider>{children}</TRPCReactProvider>
+        <Toaster position="top-center" richColors theme="light" />
       </body>
     </html>
   );

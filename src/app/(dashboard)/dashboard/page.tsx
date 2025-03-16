@@ -12,14 +12,14 @@ import {
   ArrowUpRight,
   ArrowDownRight,
 } from "lucide-react";
-
+import { siteConfig } from "@/config/site";
 export default function DashboardPage() {
   return (
     <div className="w-full space-y-6">
       <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       <p className="text-muted-foreground">
-        Welcome to your B2B SaaS dashboard. Here&apos;s an overview of your
-        business.
+        Welcome to your {siteConfig.name} dashboard. Here&apos;s an overview of
+        your business.
       </p>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

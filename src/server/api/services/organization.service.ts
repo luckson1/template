@@ -6,10 +6,12 @@ import type {
   UserOrganization,
 } from "@prisma/client";
 import type {
-  ICreateOrganization,
+  CreateOrganization,
   IAddUserToOrganization,
+  UpdateOrganization,
 } from "../schemas/organization.schema";
 import { type User } from "next-auth";
+import { OrganizationRole } from "@prisma/client";
 
 // Define a type for Prisma errors
 interface PrismaError extends Error {
@@ -89,7 +91,7 @@ export const organizationService = {
   }: {
     user: User | null;
     db: PrismaClient;
-    input: ICreateOrganization;
+    input: CreateOrganization;
   }) => {
     try {
       if (!user?.id) {
@@ -349,6 +351,84 @@ export const organizationService = {
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to add user to organization",
         cause: error,
+      });
+    }
+  },
+
+  /**
+   * Update an organization
+   */
+  update: async ({
+    user,
+    db,
+    input,
+  }: {
+    user: User | null;
+    db: PrismaClient;
+    input: UpdateOrganization;
+  }) => {
+    try {
+      const userId = user?.id;
+      if (!userId) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You must be logged in to update an organization",
+        });
+      }
+
+      // Check if the organization exists
+      const organization = await db.organization.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!organization) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Organization not found",
+        });
+      }
+
+      // Check if the user has permission to update the organization
+      const userOrg = await db.userOrganization.findUnique({
+        where: {
+          userId_organizationId: {
+            userId,
+            organizationId: input.id,
+          },
+        },
+      });
+
+      if (
+        !userOrg ||
+        (userOrg.role !== OrganizationRole.OWNER &&
+          userOrg.role !== OrganizationRole.ADMIN)
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You don't have permission to update this organization",
+        });
+      }
+
+      // Update the organization
+      const updatedOrganization = await db.organization.update({
+        where: { id: input.id },
+        data: {
+          name: input.name,
+          logo: input.logo,
+          website: input.website,
+          billingEmail: input.billingEmail,
+          billingName: input.billingName,
+        },
+      });
+
+      return updatedOrganization;
+    } catch (error) {
+      if (error instanceof TRPCError) throw error;
+
+      console.error("Error updating organization:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to update organization",
       });
     }
   },

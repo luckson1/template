@@ -4,6 +4,7 @@ import {
   getOrganizationByIdSchema,
   getUserOrganizationsSchema,
   addUserToOrganizationSchema,
+  updateOrganizationSchema,
 } from "../schemas/organization.schema";
 import { organizationService } from "../services/organization.service";
 
@@ -35,6 +36,17 @@ export const organizationRouter = createTRPCRouter({
     .mutation(({ ctx, input }) => {
       // Extract user from session and pass db directly
       return organizationService.create({
+        user: ctx.session.user,
+        db: ctx.db,
+        input,
+      });
+    }),
+
+  update: protectedProcedure
+    .input(updateOrganizationSchema)
+    .mutation(({ ctx, input }) => {
+      // Extract user from session and pass db directly
+      return organizationService.update({
         user: ctx.session.user,
         db: ctx.db,
         input,

@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { siteConfig } from "@/config/site";
 
 export default function AuthErrorPage() {
   const searchParams = useSearchParams();
@@ -70,7 +71,7 @@ export default function AuthErrorPage() {
         <div className="flex flex-col items-center space-y-2 text-center">
           <div className="flex items-center gap-2">
             <Building2 className="h-8 w-8" />
-            <h1 className="text-2xl font-bold">B2B SaaS</h1>
+            <h1 className="text-2xl font-bold">{siteConfig.name}</h1>
           </div>
         </div>
 

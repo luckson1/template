@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
+import { siteConfig } from "@/config/site";
 export default function VerifyRequestPage() {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
@@ -19,7 +19,7 @@ export default function VerifyRequestPage() {
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <GalleryVerticalEnd className="size-4" />
           </div>
-          B2B SaaS
+          {siteConfig.name}
         </a>
 
         <Card className="w-full">
