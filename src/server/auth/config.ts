@@ -79,6 +79,7 @@ export const authConfig = {
           await organizationService.createDefaultForUser({
             userId: user.id,
             name: user.name,
+            db,
           });
           console.log(`Created default organization for user ${user.id}`);
         }

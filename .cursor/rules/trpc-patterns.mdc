@@ -8,7 +8,7 @@ alwaysApply: true
 ## Core Guidelines
 - Structure APIs in layers: router → service → data access
 - Define input validation with Zod schemas (`z.object({id: z.string().uuid()})`)
-- Create pure service functions that receive context as parameter
+- Create pure service functions that receive user and db as parameters
 - Create reusable validation schemas in separate files
 - Implement proper error handling with custom error classes
 - Write clean, idiomatic TypeScript code with proper type annotations
@@ -62,29 +62,37 @@ export type IUser = z.infer<typeof userSchema>;
 ```typescript
 // src/server/api/services/user.ts
 import { TRPCError } from '@trpc/server';
-import type { Context } from '../trpc';
-import type { User }  from "@prisma/client";
+import type { PrismaClient, User } from "@prisma/client";
 
 interface IUserServiceContext {
-  ctx: Context;
+  user: User | null;
+  db: PrismaClient;
   input: Partial<User>;
 }
 
 export const userService = {
-  getById: async ({ ctx, input }: { ctx: Context; input: { id: string } }) => {
+  getById: async ({ 
+    user, 
+    db, 
+    input 
+  }: { 
+    user: User | null; 
+    db: PrismaClient; 
+    input: { id: string } 
+  }) => {
     try {
-      const user = await ctx.db.user.findUnique({
+      const foundUser = await db.user.findUnique({
         where: { id: input.id },
       });
 
-      if (!user) {
+      if (!foundUser) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'User not found',
         });
       }
 
-      return user;
+      return foundUser;
     } catch (error) {
       if (error instanceof TRPCError) throw error;
       throw new TRPCError({
@@ -94,18 +102,31 @@ export const userService = {
     }
   },
 
-  create: async ({ ctx, input }: IUserServiceContext) => {
+  create: async ({ user, db, input }: IUserServiceContext) => {
     try {
-      return await ctx.db.user.create({
+      // Check if the user is authenticated if needed
+      if (!user) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'You must be logged in to create a user',
+        });
+      }
+
+      return await db.user.create({
         data: input,
       });
     } catch (error) {
-      if (error.code === 'P2002') {
+      if (error instanceof TRPCError) throw error;
+      
+      // Type guard for Prisma errors
+      const prismaError = error as { code?: string };
+      if (prismaError.code === 'P2002') {
         throw new TRPCError({
           code: 'CONFLICT',
           message: 'Email already exists',
         });
       }
+      
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
         message: 'Failed to create user',
@@ -119,30 +140,46 @@ export const userService = {
 
 ```typescript
 // src/server/api/routers/user.ts
-import { router, publicProcedure, protectedProcedure } from '../trpc';
-import { userSchema, getUserByIdSchema } from '../schemas/user.schema';
-import { userService } from '../services/user.service';
+import { createTRPCRouter, publicProcedure, protectedProcedure } from '../trpc';
+import { userSchema, getUserByIdSchema } from '../schemas/user';
+import { userService } from '../services/user';
 
-export const userRouter = router({
+
+export const userRouter = createTRPCRouter({
   getById: publicProcedure
     .input(getUserByIdSchema)
-    .query(({ ctx, input }) => userService.getById({ ctx, input })),
+    .query(({ ctx, input }) => {
+      return userService.getById({ 
+        user: ctx.session?.user ?? null, 
+        db, 
+        input 
+      });
+    }),
   
   create: protectedProcedure
     .input(userSchema.omit({ id: true }))
-    .mutation(({ ctx, input }) => userService.create({ ctx, input })),
+    .mutation(({ ctx, input }) => {
+      return userService.create({ 
+        user: ctx.session.user, 
+     db:ctx.db
+        input 
+      });
+    }),
   
   update: protectedProcedure
     .input(userSchema)
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
-      return userService.update({ ctx, input: { id, data } });
+      return userService.update({ 
+        user: ctx.session.user, 
+      db:ctx.db
+        input: { id, data } 
+      });
     }),
 });
 ```
 
 ## Error Handling Pattern
-
 
 use trpc error handling
 

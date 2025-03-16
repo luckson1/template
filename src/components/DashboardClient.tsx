@@ -10,13 +10,14 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Building2 } from "lucide-react";
+import { Building2, Users } from "lucide-react";
 import { NavUser } from "@/components/NavUser";
 import { NavMain } from "@/components/NavMain";
 import { getPageTitleFromPath, type SidebarConfig } from "@/config/sidebar";
 import { useNavigationItems } from "./NavigationItems";
 import { useUserNavigation } from "./UserNavigation";
 import { type User } from "next-auth";
+import { TeamSwitcher } from "./TeamSwitcher";
 
 interface DashboardClientProps {
   children: ReactNode;
@@ -39,8 +40,11 @@ export function DashboardClient({
       <div className="flex min-h-screen w-full">
         <Sidebar variant="inset" collapsible="icon">
           <SidebarHeader>
-            <div className="flex items-center gap-2 px-2">
-              <Building2 className="h-6 w-6" />
+            <div className="flex flex-col gap-2 px-2">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-6 w-6" />
+              </div>
+              <TeamSwitcher />
             </div>
           </SidebarHeader>
           <SidebarContent>
