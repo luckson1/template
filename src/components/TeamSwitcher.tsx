@@ -125,7 +125,7 @@ export function TeamSwitcher() {
                   <span className="truncate font-semibold">
                     {selectedOrg.name}
                   </span>
-                  <span className="truncate text-xs">{selectedOrg.plan}</span>
+                  <span className="truncate text-xs">Free Plan</span>
                 </div>
                 <ChevronsUpDown className="ml-auto" />
               </SidebarMenuButton>

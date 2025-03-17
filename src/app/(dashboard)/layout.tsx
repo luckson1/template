@@ -20,9 +20,9 @@ export default async function DashboardLayout({
   if (!session) {
     redirect("/login");
   }
-  const user = session.user;
+
   return (
-    <DashboardClient user={user} sidebarConfig={sidebarConfig}>
+    <DashboardClient session={session} sidebarConfig={sidebarConfig}>
       {children}
     </DashboardClient>
   );

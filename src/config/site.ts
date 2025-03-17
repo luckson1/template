@@ -60,6 +60,22 @@ export const siteConfig = {
     twitter: "https://twitter.com/yourtwitterhandle",
   },
 
+  // Support contact information
+  support: {
+    email: {
+      address: "support@b2bsaas.com",
+      responseTime: "Within 24 hours",
+    },
+    phone: {
+      number: "+1 (800) 123-4567",
+      availability: "Available for Business and Enterprise plans",
+    },
+    liveChat: {
+      location: "Available in the bottom right corner of your dashboard",
+      availability: "Business hours only",
+    },
+  },
+
   // Application details
   application: {
     category: "DesignApplication", // Schema.org applicationCategory

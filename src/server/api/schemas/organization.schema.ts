@@ -19,10 +19,10 @@ export const createOrganizationSchema = z.object({
       /^[a-z0-9-]+$/,
       "Slug can only contain lowercase letters, numbers, and hyphens",
     )
-    .optional()
-    .nullable(),
+    .optional(),
+
   logo: z.string().url().optional().nullable(),
-  website: z.string().url().optional().nullable(),
+  website: z.string().url().optional(),
 });
 
 export const updateOrganizationSchema = z.object({

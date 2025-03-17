@@ -6,6 +6,7 @@ import {
   CreditCard,
   HelpCircle,
   LogOut,
+  Building,
 } from "lucide-react";
 import { type ReactNode } from "react";
 
@@ -62,10 +63,16 @@ export const defaultSidebarConfig: SidebarConfig = {
       title: "Settings",
       items: [
         {
-          title: "Settings",
-          href: "/settings",
+          title: "Organization",
+          href: "/organization",
+          icon: <Building className="h-4 w-4" />,
+          tooltip: "Organization Settings",
+        },
+        {
+          title: "Account",
+          href: "/account",
           icon: <Settings className="h-4 w-4" />,
-          tooltip: "Settings",
+          tooltip: "Account Settings",
         },
         {
           title: "Help & Support",

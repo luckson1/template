@@ -17,21 +17,23 @@ import { useNavigationItems } from "./NavigationItems";
 import { useUserNavigation } from "./UserNavigation";
 import { type User } from "next-auth";
 import { TeamSwitcher } from "./TeamSwitcher";
+import { type Session } from "next-auth";
 
 interface DashboardClientProps {
   children: ReactNode;
   sidebarConfig: SidebarConfig;
-  user: User;
+  session: Session;
 }
 
 export function DashboardClient({
   children,
   sidebarConfig,
-  user,
+  session,
 }: DashboardClientProps) {
   const pathname = usePathname();
   const pageTitle = getPageTitleFromPath(pathname, sidebarConfig);
-  const navItems = useNavigationItems();
+  const navItems = useNavigationItems(session);
+  const user = session.user;
   const { customNavGroups } = useUserNavigation();
 
   return (

@@ -1,9 +1,20 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { Home, CreditCard, Settings, HelpCircle } from "lucide-react";
+import {
+  Home,
+  CreditCard,
+  Settings,
+  HelpCircle,
+  Shield,
+  Users,
+} from "lucide-react";
+import { isSystemAdmin } from "@/lib/system-roles";
+import { type Session } from "next-auth";
 
-export function useNavigationItems() {
+export function useNavigationItems(session: Session | null) {
   const pathname = usePathname();
+
+  const isAdmin = isSystemAdmin(session?.user);
 
   // Navigation items with collapsible settings
   const navItems = [
@@ -30,6 +41,12 @@ export function useNavigationItems() {
           isActive: pathname === "/billing",
           icon: CreditCard,
         },
+        {
+          title: "Team",
+          url: "/team",
+          isActive: pathname === "/team",
+          icon: Users,
+        },
       ],
     },
     {
@@ -39,6 +56,23 @@ export function useNavigationItems() {
       isActive: pathname === "/support",
     },
   ];
+
+  // Add admin section for system admins
+  if (isAdmin) {
+    navItems.push({
+      title: "Admin",
+      url: "/admin",
+      icon: Shield,
+      isActive: pathname.startsWith("/admin"),
+      items: [
+        {
+          title: "User Management",
+          url: "/admin/users",
+          isActive: pathname === "/admin/users",
+        },
+      ],
+    });
+  }
 
   return navItems;
 }

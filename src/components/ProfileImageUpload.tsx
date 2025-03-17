@@ -9,6 +9,15 @@ interface ProfileImageUploadProps {
   onImageUploaded: (imageUrl: string) => void;
 }
 
+// Define types for API responses
+interface UploadErrorResponse {
+  error: string;
+}
+
+interface UploadSuccessResponse {
+  url: string;
+}
+
 export function ProfileImageUpload({
   currentImage,
   onImageUploaded,
@@ -40,11 +49,11 @@ export function ProfileImageUpload({
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to upload image");
+        const errorData = (await response.json()) as UploadErrorResponse;
+        throw new Error(errorData.error ?? "Failed to upload image");
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as UploadSuccessResponse;
       onImageUploaded(data.url);
       toast.success("Profile image uploaded successfully");
     } catch (error) {
@@ -70,13 +79,13 @@ export function ProfileImageUpload({
     }
   };
 
-  const displayImage = previewUrl || currentImage;
+  const displayImage = previewUrl ?? currentImage;
 
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="relative">
         <Avatar className="h-24 w-24">
-          <AvatarImage src={displayImage || undefined} alt="Profile" />
+          <AvatarImage src={displayImage ?? undefined} alt="Profile" />
           <AvatarFallback className="text-lg">
             {isUploading ? (
               <Loader2 className="h-6 w-6 animate-spin" />
@@ -108,6 +117,7 @@ export function ProfileImageUpload({
         <Button
           variant="outline"
           size="sm"
+          type="button"
           onClick={handleButtonClick}
           disabled={isUploading}
         >
@@ -131,6 +141,6 @@ export function ProfileImageUpload({
 // Helper function to get initials from name or email
 function getInitials(imageUrl: string | null | undefined): string {
   // If there's an image, return a placeholder
-  if (imageUrl) return "👤";
+  if (imageUrl) return "U";
   return "?";
 }

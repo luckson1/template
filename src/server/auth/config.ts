@@ -1,12 +1,12 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/resend";
+import type { SystemRole } from "@prisma/client";
 
 import { env } from "@/env";
 import { db } from "@/server/db";
-import { organizationService } from "../api/services/organization.service";
+import { organizationService } from "../api/services/organization";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -18,15 +18,19 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
+      systemRole: SystemRole;
+      defaultOrganizationId: string;
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    systemRole: SystemRole;
+    defaultOrganizationId?: string;
+    // ...other properties
+    // role: UserRole;
+  }
 }
 
 /**
@@ -61,13 +65,17 @@ export const authConfig = {
     error: "/error",
     verifyRequest: "/verify-request",
   },
+  // @ts-expect-error types
   adapter: PrismaAdapter(db),
   callbacks: {
     session: ({ session, user }) => ({
       ...session,
+
       user: {
         ...session.user,
         id: user.id,
+        systemRole: user.systemRole,
+        defaultOrganizationId: user?.defaultOrganizationId,
       },
     }),
   },

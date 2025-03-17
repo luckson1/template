@@ -36,6 +36,7 @@ import { updateOrganizationSchema } from "@/server/api/schemas/organization.sche
 import type { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useOrganization } from "@/hooks/useOrganization";
+import { ProfileImageUpload } from "@/components/ProfileImageUpload";
 
 type UserFormValues = z.infer<typeof updateUserProfileSchema>;
 type OrgFormValues = z.infer<typeof updateOrganizationSchema>;
@@ -166,6 +167,11 @@ export default function AccountPage() {
     }
   };
 
+  // Handle profile image upload
+  const handleImageUploaded = (imageUrl: string) => {
+    userForm.setValue("image", imageUrl, { shouldDirty: true });
+  };
+
   if (isUserLoading || isOrgsLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
@@ -194,43 +200,49 @@ export default function AccountPage() {
           </CardHeader>
           <Form {...userForm}>
             <form onSubmit={userForm.handleSubmit(onUserSubmit)}>
-              <CardContent className="space-y-4">
-                <FormField
-                  control={userForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <CardContent className="space-y-6">
+                <div className="flex flex-col items-center sm:flex-row sm:items-start sm:gap-8">
+                  <div className="mb-4 sm:mb-0">
+                    <ProfileImageUpload
+                      currentImage={userData?.image ?? null}
+                      onImageUploaded={handleImageUploaded}
+                    />
+                  </div>
+                  <div className="w-full space-y-4">
+                    <FormField
+                      control={userForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div>
+                      <p className="text-sm font-medium">Email</p>
+                      <p className="text-sm text-muted-foreground">
+                        {userData?.email}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Email cannot be changed directly. Please contact support
+                        if you need to update your email.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hidden field for image URL */}
                 <FormField
                   control={userForm.control}
                   name="image"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Profile Image URL</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={field.value ?? ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    <input type="hidden" {...field} value={field.value ?? ""} />
                   )}
                 />
-                <div>
-                  <p className="text-sm font-medium">Email</p>
-                  <p className="text-sm text-muted-foreground">
-                    {userData?.email}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Email cannot be changed directly. Please contact support if
-                    you need to update your email.
-                  </p>
-                </div>
               </CardContent>
               <CardFooter className="flex justify-end">
                 <Button

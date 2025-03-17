@@ -3,7 +3,7 @@
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { type z } from "zod";
 import { api } from "@/trpc/react";
 
 import {
@@ -25,20 +25,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { createOrganizationSchema } from "@/server/api/schemas/organization.schema";
 
-// Form schema for organization creation
-const formSchema = z.object({
-  name: z.string().min(2, "Organization name must be at least 2 characters"),
-  slug: z.string().min(2, "Slug must be at least 2 characters").optional(),
-  website: z
-    .string()
-    .url("Please enter a valid URL")
-    .optional()
-    .or(z.literal("")),
-  logo: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof createOrganizationSchema>;
 
 interface AddOrganizationModalProps {
   open: boolean;
@@ -66,12 +55,9 @@ export function AddOrganizationModal({
 
   // Form definition
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createOrganizationSchema),
     defaultValues: {
       name: "",
-      slug: "",
-      website: "",
-      logo: "",
     },
   });
 
