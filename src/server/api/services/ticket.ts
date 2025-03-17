@@ -294,6 +294,7 @@ export const ticketService = {
               id: true,
               name: true,
               image: true,
+              email: true,
             },
           },
           attachments: true,
