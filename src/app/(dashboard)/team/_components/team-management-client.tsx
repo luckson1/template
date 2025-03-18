@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { PlusIcon, UserX } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { useOrganization } from "@/hooks/useOrganization";
 import { api } from "@/trpc/react";
@@ -27,8 +29,10 @@ export default function TeamManagementClient({
   currentUserId,
 }: TeamManagementClientProps) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
-  const { selectedOrgId, organizations, selectedOrg } = useOrganization();
+  const { selectedOrgId, organizations, selectedOrg, isLoading } =
+    useOrganization();
 
   // Fetch members for the selected organization
   const { data: members = [], isLoading: isMembersLoading } =
@@ -36,7 +40,6 @@ export default function TeamManagementClient({
       {
         organizationId: selectedOrgId ?? "",
       },
-
       {
         enabled: !!selectedOrgId,
       },
@@ -62,11 +65,22 @@ export default function TeamManagementClient({
   // Redirect to organization create page if no organizations
   useEffect(() => {
     if (!organizations.length && !isMembersLoading) {
-      window.location.href = "/organization/create";
+      router.push("/team/create");
     }
-  }, [organizations, isMembersLoading]);
+  }, [organizations, isMembersLoading, router]);
 
-  if (!selectedOrg) {
+  if (isMembersLoading || isInvitationsLoading || isLoading) {
+    return (
+      <Card className="mx-auto w-full max-w-4xl bg-white">
+        <CardContent className="p-10">
+          <Skeleton className="mb-4 h-10 w-full" />
+          <Skeleton className="mb-2 h-6 w-3/4" />
+          <Skeleton className="h-6 w-1/2" />
+        </CardContent>
+      </Card>
+    );
+  }
+  if (!selectedOrg && !isLoading) {
     return (
       <Card className="mx-auto w-full max-w-4xl bg-white">
         <CardContent className="p-10 text-center">
@@ -79,7 +93,6 @@ export default function TeamManagementClient({
       </Card>
     );
   }
-
   return (
     <Card className="mx-auto w-full max-w-4xl bg-white">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -102,10 +115,12 @@ export default function TeamManagementClient({
               </Button>
             </DialogTrigger>
             <DialogContent className="mx-auto w-full max-w-xl">
-              <InviteMembers
-                organizationId={selectedOrg.id}
-                onInviteSent={() => setOpen(false)}
-              />
+              {selectedOrg && (
+                <InviteMembers
+                  organizationId={selectedOrg.id}
+                  onInviteSent={() => setOpen(false)}
+                />
+              )}
             </DialogContent>
           </Dialog>
         )}
@@ -125,22 +140,26 @@ export default function TeamManagementClient({
             </TabsList>
           )}
           <TabsContent value="current-team">
-            <CurrentTeam
-              members={members}
-              organizationId={selectedOrg.id}
-              currentUserId={currentUserId}
-              isOwner={isOwner}
-              isAdmin={isAdmin}
-            />
+            {selectedOrg && (
+              <CurrentTeam
+                members={members}
+                organizationId={selectedOrg.id}
+                currentUserId={currentUserId}
+                isOwner={isOwner}
+                isAdmin={isAdmin}
+              />
+            )}
           </TabsContent>
           {isAdmin && (
             <>
               <TabsContent value="pending-invites">
-                <PendingInvites
-                  invitations={invitations}
-                  organizationId={selectedOrg.id}
-                  isAdmin={isAdmin}
-                />
+                {selectedOrg && (
+                  <PendingInvites
+                    invitations={invitations}
+                    organizationId={selectedOrg.id}
+                    isAdmin={isAdmin}
+                  />
+                )}
               </TabsContent>
             </>
           )}

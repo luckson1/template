@@ -27,7 +27,7 @@ declare module "next-auth" {
 
   interface User {
     systemRole: SystemRole;
-    defaultOrganizationId?: string;
+    defaultOrganizationId?: string | null;
     // ...other properties
     // role: UserRole;
   }
@@ -75,7 +75,7 @@ export const authConfig = {
         ...session.user,
         id: user.id,
         systemRole: user.systemRole,
-        defaultOrganizationId: user?.defaultOrganizationId,
+        defaultOrganizationId: user?.defaultOrganizationId ?? null,
       },
     }),
   },

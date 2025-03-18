@@ -73,7 +73,8 @@ export default function SupportPage() {
   // Get recent tickets
   const { data: recentTickets, isLoading: isLoadingTickets } =
     api.support.listTickets.useQuery(
-      { limit: 5 },
+      { organizationId: selectedOrg?.id, limit: 5 },
+
       { enabled: true, refetchOnWindowFocus: false },
     );
 

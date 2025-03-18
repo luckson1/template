@@ -427,7 +427,7 @@ export const supportService = {
 
       // If this is a customer comment and the ticket is in WAITING_ON_CUSTOMER status,
       // update it back to IN_PROGRESS
-      if (!input.isInternal && ticket.status === "WAITING_ON_CUSTOMER") {
+      if (!input.isInternal && ticket.status === "NEEDS_INFO") {
         await db.supportTicket.update({
           where: { id: ticket.id },
           data: { status: "IN_PROGRESS" },
