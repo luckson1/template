@@ -80,115 +80,134 @@ The sidebar navigation can be customized by modifying the configuration in `side
 
 ### Usage
 
-The default sidebar configuration is exported as `defaultSidebarConfig`. You can use it as is, or create your own custom configuration:
+The application uses a centralized navigation system through the `getNavigationItems` function in `sidebar.tsx`:
 
 ```tsx
-// Example: Creating a custom sidebar configuration
-import { Home, Settings, Users } from "lucide-react";
-import { SidebarConfig } from "@/config/sidebar";
+import { usePathname } from "next/navigation";
+import { getNavigationItems } from "@/config/sidebar";
+import { type Session } from "next-auth";
 
-export const mySidebarConfig: SidebarConfig = {
-  groups: [
-    {
-      title: "My Custom Group",
-      items: [
-        {
-          title: "Home",
-          href: "/dashboard",
-          icon: <Home className="h-4 w-4" />,
-          tooltip: "Home",
-        },
-        {
-          title: "Users",
-          href: "/dashboard/users",
-          icon: <Users className="h-4 w-4" />,
-          tooltip: "Users",
-        },
-      ],
-    },
-    {
-      title: "Admin",
-      items: [
-        {
-          title: "Settings",
-          href: "/dashboard/settings",
-          icon: <Settings className="h-4 w-4" />,
-          tooltip: "Settings",
-        },
-      ],
-    },
-  ],
-};
+// In a component or hook
+function MyComponent({ session }: { session: Session | null }) {
+  const pathname = usePathname();
+  const navItems = getNavigationItems(pathname, session);
+
+  // Use navItems for rendering
+}
 ```
 
-### Using Custom Configuration
+### Creating Custom Navigation
 
-You can pass your custom configuration to the `DashboardLayout` component:
+You can create your own custom navigation items by following the NavItem structure:
 
 ```tsx
-// In your app/some-page/layout.tsx
-import { mySidebarConfig } from "@/path/to/your/config";
-import DashboardLayout from "@/app/dashboard/layout";
+// Example: Creating custom navigation items
+import { Home, Settings, Users } from "lucide-react";
+import { type NavItem } from "@/config/sidebar";
 
-export default function CustomLayout({ children }) {
-  return (
-    <DashboardLayout sidebarConfig={mySidebarConfig}>
-      {children}
-    </DashboardLayout>
-  );
-}
+export const myCustomNavItems: NavItem[] = [
+  {
+    title: "Home",
+    url: "/dashboard",
+    icon: Home,
+  },
+  {
+    title: "Users",
+    url: "/dashboard/users",
+    icon: Users,
+  },
+  {
+    title: "Settings",
+    url: "/dashboard/settings",
+    icon: Settings,
+    items: [
+      {
+        title: "Account",
+        url: "/dashboard/settings/account",
+      },
+      {
+        title: "Security",
+        url: "/dashboard/settings/security",
+      },
+    ],
+  },
+];
 ```
 
 ### Example Configurations
 
-We've provided some example configurations in the `examples` directory:
+We've provided some example navigation configurations in the `examples` directory:
 
-1. `ecommerceAdminSidebar` - A sidebar configuration for an e-commerce admin dashboard
-2. `minimalSidebar` - A minimal sidebar with just essential navigation items
+1. `ecommerceNavItems` - Navigation items for an e-commerce admin dashboard
+2. `minimalNavItems` - A minimal navigation with just essential items
 
-You can import and use these examples:
+You can import and use these in your custom components:
 
 ```tsx
-import { ecommerceAdminSidebar } from "@/config/examples/custom-sidebar";
-import DashboardLayout from "@/app/dashboard/layout";
+import { ecommerceNavItems } from "@/config/examples/custom-sidebar";
+import { NavMain } from "@/components/NavMain";
 
-export default function EcommerceLayout({ children }) {
-  return (
-    <DashboardLayout sidebarConfig={ecommerceAdminSidebar}>
-      {children}
-    </DashboardLayout>
-  );
+export function CustomNavigation() {
+  return <NavMain items={ecommerceNavItems} groupTitle="E-commerce" />;
 }
 ```
 
 ### Configuration Structure
 
-The sidebar configuration follows this structure:
+The navigation configuration follows this structure:
 
 ```typescript
 interface NavItem {
   title: string; // Display text for the navigation item
-  href: string; // URL path for the navigation item
-  icon: ReactNode; // Icon component to display
-  tooltip?: string; // Optional tooltip text
-}
-
-interface NavGroup {
-  title: string; // Group title
-  items: NavItem[]; // Navigation items in this group
-}
-
-interface SidebarConfig {
-  groups: NavGroup[]; // Groups of navigation items
-  footerLinks?: NavItem[]; // Optional footer navigation items
+  url: string; // URL path for the navigation item (used to be href)
+  icon?: React.ComponentType<{ className?: string }>; // Icon component type
+  isActive?: boolean; // Whether the item is currently active
+  items?: NavItem[]; // Optional sub-items for dropdown/collapsible navigation
+  group?: string; // Group this item belongs to for sidebar organization
 }
 ```
 
 Each navigation item requires:
 
 - `title`: The text to display
-- `href`: The URL path
-- `icon`: A React component (typically a Lucide icon)
-- `tooltip` (optional): Text to show on hover
+- `url`: The URL path
+- `icon` (optional): A Lucide icon component type
+- `isActive` (optional): Boolean to indicate if the item is currently active
+- `items` (optional): Array of sub-items for nested navigation
+- `group` (optional): String identifier for the group this item belongs to
 
-Navigation items are organized into groups, each with a title.
+The `getNavigationItems` function in `sidebar.tsx` automatically sets the `isActive` property based on the current pathname, so you don't need to manage that manually in most cases.
+
+### Grouped Navigation Structure
+
+Navigation items are automatically grouped in the sidebar based on their `group` property. Items with the same group value will be displayed together under the same group header.
+
+Example of creating grouped navigation items:
+
+```tsx
+import { Home, Settings, HelpCircle } from "lucide-react";
+import { type NavItem } from "@/config/sidebar";
+
+const groupedNavItems: NavItem[] = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: Home,
+    group: "Main", // This item will appear in the "Main" group
+  },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: Settings,
+    group: "Configuration", // This item will appear in the "Configuration" group
+  },
+  {
+    title: "Help",
+    url: "/help",
+    icon: HelpCircle,
+    group: "Configuration", // This item will also appear in the "Configuration" group
+  },
+];
+```
+
+The `getSidebarConfig` function automatically organizes these items into proper groups for display in the sidebar.

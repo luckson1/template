@@ -2,6 +2,7 @@
 import { Settings, CreditCard, HelpCircle, LogOut } from "lucide-react";
 import type { NavGroup } from "@/components/NavUser";
 
+// Define a consistent structure for user navigation
 export function useUserNavigation() {
   // User data
   const user = {
@@ -15,7 +16,7 @@ export function useUserNavigation() {
     {
       items: [
         {
-          title: "Account Settings",
+          title: "Account",
           href: "/account",
           icon: Settings,
         },

@@ -7,76 +7,107 @@ import {
   BarChart,
   HelpCircle,
   LogOut,
+  CreditCard,
+  Shield,
 } from "lucide-react";
-import { type SidebarConfig } from "@/config/sidebar";
+import { type SidebarConfig, type NavItem } from "@/config/sidebar";
 
 /**
  * Example of a custom sidebar configuration for an e-commerce admin dashboard
  */
+export const ecommerceNavItems: NavItem[] = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: Home,
+    group: "Overview",
+  },
+  {
+    title: "Analytics",
+    url: "/dashboard/analytics",
+    icon: BarChart,
+    group: "Overview",
+  },
+  {
+    title: "Products",
+    url: "/dashboard/products",
+    icon: ShoppingCart,
+    items: [
+      {
+        title: "All Products",
+        url: "/dashboard/products/all",
+      },
+      {
+        title: "Add New",
+        url: "/dashboard/products/new",
+      },
+      {
+        title: "Categories",
+        url: "/dashboard/products/categories",
+      },
+    ],
+    group: "Store Management",
+  },
+  {
+    title: "Orders",
+    url: "/dashboard/orders",
+    icon: FileText,
+    group: "Store Management",
+  },
+  {
+    title: "Customers",
+    url: "/dashboard/customers",
+    icon: Users,
+    group: "Store Management",
+  },
+  {
+    title: "Settings",
+    url: "/dashboard/settings",
+    icon: Settings,
+    items: [
+      {
+        title: "Store",
+        url: "/dashboard/settings/store",
+      },
+      {
+        title: "Payments",
+        url: "/dashboard/settings/payments",
+        icon: CreditCard,
+      },
+      {
+        title: "Team",
+        url: "/dashboard/settings/team",
+        icon: Users,
+      },
+    ],
+    group: "Administration",
+  },
+  {
+    title: "Help & Support",
+    url: "/dashboard/support",
+    icon: HelpCircle,
+    group: "Administration",
+  },
+];
+
+// For backward compatibility
 export const ecommerceAdminSidebar: SidebarConfig = {
   groups: [
     {
       title: "Overview",
-      items: [
-        {
-          title: "Dashboard",
-          href: "/dashboard",
-          icon: <Home className="h-4 w-4" />,
-          tooltip: "Dashboard",
-        },
-        {
-          title: "Analytics",
-          href: "/dashboard/analytics",
-          icon: <BarChart className="h-4 w-4" />,
-          tooltip: "Analytics",
-        },
-      ],
+      items: ecommerceNavItems.filter((item) => item.group === "Overview"),
     },
     {
       title: "Store Management",
-      items: [
-        {
-          title: "Products",
-          href: "/dashboard/products",
-          icon: <ShoppingCart className="h-4 w-4" />,
-          tooltip: "Products",
-        },
-        {
-          title: "Orders",
-          href: "/dashboard/orders",
-          icon: <FileText className="h-4 w-4" />,
-          tooltip: "Orders",
-        },
-        {
-          title: "Customers",
-          href: "/dashboard/customers",
-          icon: <Users className="h-4 w-4" />,
-          tooltip: "Customers",
-        },
-      ],
+      items: ecommerceNavItems.filter(
+        (item) => item.group === "Store Management",
+      ),
     },
     {
       title: "Administration",
-      items: [
-        {
-          title: "Settings",
-          href: "/dashboard/settings",
-          icon: <Settings className="h-4 w-4" />,
-          tooltip: "Settings",
-        },
-        {
-          title: "Help & Support",
-          href: "/dashboard/support",
-          icon: <HelpCircle className="h-4 w-4" />,
-          tooltip: "Help",
-        },
-        {
-          title: "Sign Out",
-          href: "/logout",
-          icon: <LogOut className="h-4 w-4" />,
-          tooltip: "Sign Out",
-        },
-      ],
+      items: ecommerceNavItems.filter(
+        (item) => item.group === "Administration",
+      ),
     },
   ],
 };
@@ -84,30 +115,47 @@ export const ecommerceAdminSidebar: SidebarConfig = {
 /**
  * Example of a minimal sidebar configuration
  */
+export const minimalNavItems: NavItem[] = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: Home,
+    group: "Main",
+  },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: Settings,
+    items: [
+      {
+        title: "Account",
+        url: "/account",
+      },
+      {
+        title: "Preferences",
+        url: "/preferences",
+      },
+    ],
+    group: "Configuration",
+  },
+  {
+    title: "Help",
+    url: "/help",
+    icon: HelpCircle,
+    group: "Configuration",
+  },
+];
+
+// For backward compatibility
 export const minimalSidebar: SidebarConfig = {
   groups: [
     {
-      title: "Navigation",
-      items: [
-        {
-          title: "Home",
-          href: "/dashboard",
-          icon: <Home className="h-4 w-4" />,
-          tooltip: "Home",
-        },
-        {
-          title: "Settings",
-          href: "/dashboard/settings",
-          icon: <Settings className="h-4 w-4" />,
-          tooltip: "Settings",
-        },
-        {
-          title: "Sign Out",
-          href: "/logout",
-          icon: <LogOut className="h-4 w-4" />,
-          tooltip: "Sign Out",
-        },
-      ],
+      title: "Main",
+      items: minimalNavItems.filter((item) => item.group === "Main"),
+    },
+    {
+      title: "Configuration",
+      items: minimalNavItems.filter((item) => item.group === "Configuration"),
     },
   ],
 };
