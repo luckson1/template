@@ -92,8 +92,10 @@ export const userService = {
 
       // Check if the user is updating their own profile or has admin permissions
       if (input.id !== user.id) {
-        // Here you could add additional permission checks
-        // For example, check if the user is an admin
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not authorized to update this user",
+        });
       }
 
       return await db.user.update({

@@ -36,7 +36,7 @@ export default function RegisterPage() {
       const result = await signIn("resend", {
         email,
         redirect: false,
-        callbackUrl: "/auth/onboarding",
+        callbackUrl: "/dashboard",
       });
 
       if (result?.error) {
@@ -59,7 +59,7 @@ export default function RegisterPage() {
 
     setIsLoading(true);
     try {
-      await signIn("google", { callbackUrl: "/auth/onboarding" });
+      await signIn("google", { callbackUrl: "/dashboard" });
     } catch (error) {
       setError("Failed to sign up with Google. Please try again.");
       setIsLoading(false);

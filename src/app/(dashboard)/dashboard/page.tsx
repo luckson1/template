@@ -1,3 +1,8 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -6,14 +11,77 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
   BarChart3,
   Users,
   CreditCard,
   ArrowUpRight,
   ArrowDownRight,
+  Loader2,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
+import { api } from "@/trpc/react";
+
 export default function DashboardPage() {
+  const { data: session, status, update } = useSession();
+  const [isNameModalOpen, setIsNameModalOpen] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const updateProfileMutation = api.user.updateProfile.useMutation();
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user && !session.user.name) {
+      setIsNameModalOpen(true);
+    }
+  }, [session, status]);
+
+  const handleNameSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nameInput.trim()) {
+      toast.error("Name cannot be empty.");
+      return;
+    }
+    setIsUpdating(true);
+
+    try {
+      await updateProfileMutation.mutateAsync(
+        { name: nameInput.trim() },
+        {
+          onSuccess: (updatedUser) => {
+            void update({ name: updatedUser.name });
+            toast.success("Name updated successfully!");
+            setIsNameModalOpen(false);
+            setNameInput("");
+          },
+          onError: (error) => {
+            toast.error(
+              error.message || "Failed to update name. Please try again.",
+            );
+          },
+          onSettled: () => {
+            setIsUpdating(false);
+          },
+        },
+      );
+    } catch (error) {
+      console.error("Unexpected error updating name:", error);
+      toast.error("An unexpected error occurred.");
+      setIsUpdating(false);
+    }
+  };
+
   return (
     <div className="w-full space-y-6">
       <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
@@ -21,6 +89,51 @@ export default function DashboardPage() {
         Welcome to your {siteConfig.name} dashboard. Here&apos;s an overview of
         your business.
       </p>
+
+      {/* --- Name Update Dialog --- */}
+      <Dialog open={isNameModalOpen} onOpenChange={setIsNameModalOpen}>
+        <DialogContent
+          className="sm:max-w-[425px]"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
+          <form onSubmit={handleNameSubmit}>
+            <DialogHeader>
+              <DialogTitle>Welcome!</DialogTitle>
+              <DialogDescription>
+                Please enter your name to complete your profile setup.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Name
+                </Label>
+                <Input
+                  id="name"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  className="col-span-3"
+                  required
+                  disabled={isUpdating}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" disabled={isUpdating || !nameInput.trim()}>
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                  </>
+                ) : (
+                  "Save Name"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      {/* --- End Name Update Dialog --- */}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
