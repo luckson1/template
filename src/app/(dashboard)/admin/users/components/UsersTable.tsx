@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SystemRole } from "@prisma/client";
+import type { SystemRole } from "@prisma/client";
 import { api } from "@/trpc/react";
 import {
   Table,
@@ -39,7 +39,7 @@ export function UsersTable({ users }: { users: User[] }) {
     api.admin.updateUserSystemRole.useMutation({
       onSuccess: (updatedUser) => {
         toast.success(
-          `Updated ${updatedUser.name || updatedUser.email}'s role to ${updatedUser.systemRole}`,
+          `Updated ${updatedUser.name ?? updatedUser.email}'s role to ${updatedUser.systemRole}`,
         );
 
         // Update the optimistic state
@@ -90,14 +90,14 @@ export function UsersTable({ users }: { users: User[] }) {
               <TableCell className="flex items-center gap-3">
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src={user.image || undefined}
-                    alt={user.name || ""}
+                    src={user.image ?? undefined}
+                    alt={user.name ?? ""}
                   />
                   <AvatarFallback>
-                    {user.name?.charAt(0) || user.email?.charAt(0) || "?"}
+                    {user.name?.charAt(0) ?? user.email?.charAt(0) ?? "?"}
                   </AvatarFallback>
                 </Avatar>
-                <span>{user.name || "Unnamed User"}</span>
+                <span>{user.name ?? "Unnamed User"}</span>
               </TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>

@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     // Generate a unique filename with the original extension
-    const extension = file.name.split(".").pop() || "";
+    const extension = file.name.split(".").pop() ?? "";
     const uniqueFilename = `${crypto.randomUUID()}.${extension}`;
     const pathname = `support-attachments/${session.user.id}/${uniqueFilename}`;
 
@@ -35,7 +35,6 @@ export async function POST(request: Request) {
       url: blob.url,
       pathname: blob.pathname,
       contentType: blob.contentType,
-      size: blob.size,
     });
   } catch (error) {
     console.error("Error uploading file:", error);

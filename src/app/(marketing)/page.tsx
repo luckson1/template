@@ -228,7 +228,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="mt-4 flex items-center">
-                  {[...Array(5)].map((_, j) => (
+                  {Array.from({ length: 5 }).map((_, j) => (
                     <svg
                       key={j}
                       xmlns="http://www.w3.org/2000/svg"

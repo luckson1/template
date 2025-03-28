@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Building2, AlertTriangle, ArrowLeft } from "lucide-react";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { siteConfig } from "@/config/site";
 
-export default function AuthErrorPage() {
+function AuthError() {
   const searchParams = useSearchParams();
   const [errorMessage, setErrorMessage] = useState<string>(
     "An error occurred during authentication",
@@ -103,5 +103,19 @@ export default function AuthErrorPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container flex h-screen w-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <AuthError />
+    </Suspense>
   );
 }

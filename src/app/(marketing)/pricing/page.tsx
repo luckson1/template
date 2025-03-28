@@ -22,7 +22,7 @@ export default function PricingPage() {
                 Simple, Transparent Pricing
               </h1>
               <p className="max-w-[700px] text-muted-foreground md:text-xl">
-                Choose the plan that's right for your business. All plans
+                Choose the plan that&apos;s right for your business. All plans
                 include a 14-day free trial.
               </p>
             </div>
@@ -213,7 +213,7 @@ export default function PricingPage() {
                 Frequently Asked Questions
               </h2>
               <p className="max-w-[700px] text-muted-foreground md:text-xl">
-                Have questions? We've got answers.
+                Have questions? We&apos;ve got answers.
               </p>
             </div>
           </div>

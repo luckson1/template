@@ -1,4 +1,3 @@
-import { postRouter } from "@/server/api/routers/post";
 import { organizationRouter } from "@/server/api/routers/organization";
 import { userRouter } from "@/server/api/routers/user";
 import { supportRouter } from "@/server/api/routers/support";
@@ -12,7 +11,6 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  post: postRouter,
   organization: organizationRouter,
   user: userRouter,
   support: supportRouter,

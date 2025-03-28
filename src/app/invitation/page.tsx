@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function InvitationRedirectPage() {
+function InvitationRedirect() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -23,5 +23,19 @@ export default function InvitationRedirectPage() {
     <div className="flex h-screen items-center justify-center">
       Redirecting...
     </div>
+  );
+}
+
+export default function InvitationRedirectPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <InvitationRedirect />
+    </Suspense>
   );
 }
