@@ -47,7 +47,7 @@ export function OrganizationInvitations({
       setIsLoading(null);
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to revoke invitation");
+      toast.error(error.message || "Failed to revoke invitation. Try again");
       setIsLoading(null);
     },
   });

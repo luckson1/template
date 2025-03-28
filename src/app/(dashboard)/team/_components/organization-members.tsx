@@ -51,9 +51,12 @@ export function OrganizationMembers({
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
+  const utils = api.useUtils();
+
   const removeUser = api.organization.removeUser.useMutation({
     onSuccess: () => {
       toast.success("Member removed successfully");
+      void utils.organization.getMembers.invalidate({ organizationId });
       router.refresh();
       setIsLoading(null);
     },
@@ -66,6 +69,7 @@ export function OrganizationMembers({
   const updateUserRole = api.organization.updateUserRole.useMutation({
     onSuccess: () => {
       toast.success("Member role updated successfully");
+      void utils.organization.getMembers.invalidate({ organizationId });
       router.refresh();
       setIsLoading(null);
     },

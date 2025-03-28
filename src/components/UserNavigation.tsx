@@ -1,5 +1,6 @@
 "use client";
 import { Settings, CreditCard, HelpCircle, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 import type { NavGroup } from "@/components/NavUser";
 
 // Define a consistent structure for user navigation
@@ -14,6 +15,7 @@ export function useUserNavigation() {
   // Custom navigation configuration for user dropdown
   const customNavGroups: NavGroup[] = [
     {
+      title: "Settings",
       items: [
         {
           title: "Account",
@@ -26,16 +28,19 @@ export function useUserNavigation() {
           icon: CreditCard,
         },
         {
-          title: "Help & Support",
+          title: "Support",
           href: "/support",
           icon: HelpCircle,
         },
+      ],
+    },
+    {
+      items: [
         {
           title: "Sign out",
           icon: LogOut,
           onClick: () => {
-            console.log("Custom logout handler");
-            // Add your logout logic here
+            void signOut({ callbackUrl: "/" });
           },
         },
       ],

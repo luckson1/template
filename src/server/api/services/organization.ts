@@ -12,6 +12,7 @@ import {
   type UpdateOrganization,
 } from "../schemas/organization.schema";
 import { type Session } from "next-auth";
+import { emailService } from "../../services/email";
 
 // Define a type that includes defaultOrganizationId
 type UserWithDefaultOrg =
@@ -562,7 +563,17 @@ export const organizationService = {
         },
       });
 
-      // TODO: Send invitation email
+      // Send invitation email
+      await emailService.sendInvitation({
+        inviterName: user.name ?? "A team member",
+        inviterEmail: user.email ?? null,
+        organizationName: organization.name,
+        organizationLogo: organization.logo,
+        invitationToken: token,
+        role,
+        expiresAt,
+        recipientEmail: email,
+      });
 
       return invitation;
     } catch (error) {

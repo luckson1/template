@@ -75,25 +75,33 @@ export default function PendingInvites({
   };
 
   // Handle revoking an invitation
-  const handleRevokeInvite = async (id: string) => {
-    try {
-      await api.organization.revokeInvitation.mutate({
-        invitationId: id,
-        organizationId,
-      });
+  const useRevokeInvitation = (organizationId: string) => {
+    const router = useRouter();
+    const utils = api.useUtils();
+    const revokeInvitation = api.organization.revokeInvitation.useMutation({
+      onSuccess: () => {
+        toast.success("Invitation successfully revoked");
+        void utils.organization.getPendingInvitations.invalidate({
+          organizationId,
+        });
+        router.refresh();
+      },
+      onError: (error) => {
+        toast.error(error.message ?? "Failed to revoke invitation. Try again");
+      },
+    });
 
-      toast.success("Invitation successfully revoked");
-      utils.organization.getPendingInvitations.invalidate({ organizationId });
-      router.refresh();
-    } catch (error) {
-      toast.error("Failed to revoke invitation");
-    }
+    return (id: string) => {
+      revokeInvitation.mutate({ id });
+    };
   };
+
+  const handleRevokeInvite = useRevokeInvitation(organizationId);
 
   // Handle copying invite link
   const handleCopyInviteLink = (token: string) => {
     const inviteLink = `${window.location.origin}/invitation/${token}`;
-    navigator.clipboard.writeText(inviteLink);
+    void navigator.clipboard.writeText(inviteLink);
     toast.success("Invite link copied to clipboard");
   };
 
@@ -181,7 +189,7 @@ export default function PendingInvites({
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  {invitation.inviter.name || invitation.inviter.email}
+                  {invitation.inviter.name ?? invitation.inviter.email}
                 </TableCell>
                 <TableCell>{formatDate(invitation.expiresAt)}</TableCell>
                 {isAdmin && (

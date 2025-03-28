@@ -67,6 +67,8 @@ export default function CurrentTeam({
   const [roleFilter, setRoleFilter] = useState<OrganizationRole | "ALL">("ALL");
   const [removingUserId, setRemovingUserId] = useState<string | null>(null);
 
+  const utils = api.useUtils();
+
   // tRPC mutations
   const removeUser = api.organization.removeUser.useMutation({
     onSuccess: () => {
@@ -91,7 +93,7 @@ export default function CurrentTeam({
   // Filter members based on search query and role filter
   const filteredMembers = members.filter(
     (member) =>
-      (member.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (member.name?.toLowerCase().includes(searchQuery.toLowerCase()) ??
         member.email?.toLowerCase().includes(searchQuery.toLowerCase())) &&
       (roleFilter === "ALL" || member.role === roleFilter),
   );

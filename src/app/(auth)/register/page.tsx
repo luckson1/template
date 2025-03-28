@@ -13,10 +13,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { siteConfig } from "@/config/site";
+
 export default function RegisterPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -135,16 +135,6 @@ export default function RegisterPage() {
               {/* Email Sign Up Form */}
               <form onSubmit={handleEmailSignUp}>
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input
-                      id="name"
-                      placeholder="John Doe"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                    />
-                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
