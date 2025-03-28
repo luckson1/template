@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { GalleryVerticalEnd } from "lucide-react";
 
@@ -16,6 +16,9 @@ import { siteConfig } from "@/config/site";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +39,7 @@ export default function RegisterPage() {
       const result = await signIn("resend", {
         email,
         redirect: false,
-        callbackUrl: "/dashboard",
+        callbackUrl,
       });
 
       if (result?.error) {
@@ -59,7 +62,7 @@ export default function RegisterPage() {
 
     setIsLoading(true);
     try {
-      await signIn("google", { callbackUrl: "/dashboard" });
+      await signIn("google", { callbackUrl });
     } catch (error) {
       setError("Failed to sign up with Google. Please try again.");
       setIsLoading(false);
@@ -177,7 +180,7 @@ export default function RegisterPage() {
               <div className="text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
                 <Link
-                  href="/login"
+                  href={`/login${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
                   className="underline underline-offset-4 hover:text-primary"
                 >
                   Sign in

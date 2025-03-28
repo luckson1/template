@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { GalleryVerticalEnd } from "lucide-react";
 
@@ -12,8 +12,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/config/site";
+
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +31,7 @@ export default function LoginPage() {
       const result = await signIn("resend", {
         email,
         redirect: false,
+        callbackUrl,
       });
 
       if (result?.error) {
@@ -44,7 +49,7 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      await signIn("google", { callbackUrl: "/dashboard" });
+      await signIn("google", { callbackUrl });
     } catch (error) {
       setError("Failed to sign in with Google. Please try again.");
       setIsLoading(false);
@@ -141,7 +146,7 @@ export default function LoginPage() {
               <div className="text-center text-sm text-muted-foreground">
                 Don&apos;t have an account?{" "}
                 <Link
-                  href="/register"
+                  href={`/register${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
                   className="underline underline-offset-4 hover:text-primary"
                 >
                   Sign up

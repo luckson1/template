@@ -774,6 +774,82 @@ export const organizationService = {
   },
 
   /**
+   * Reject an invitation
+   */
+  rejectInvitation: async ({
+    user,
+    db,
+    token,
+  }: OrganizationServiceContext & {
+    token: string;
+  }): Promise<{ success: boolean }> => {
+    if (!user) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You must be logged in to reject an invitation",
+      });
+    }
+
+    try {
+      // Find the invitation
+      const invitation = await db.invitation.findUnique({
+        where: { token },
+      });
+
+      if (!invitation) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Invitation not found",
+        });
+      }
+
+      // Check if invitation is valid
+      if (invitation.status !== InvitationStatus.PENDING) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Invitation is ${invitation.status.toLowerCase()}`,
+        });
+      }
+
+      if (invitation.expiresAt < new Date()) {
+        await db.invitation.update({
+          where: { id: invitation.id },
+          data: { status: InvitationStatus.EXPIRED },
+        });
+
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invitation has expired",
+        });
+      }
+
+      // Check if email matches
+      if (invitation.email.toLowerCase() !== user.email?.toLowerCase()) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "This invitation was sent to a different email address",
+        });
+      }
+
+      // Reject the invitation
+      await db.invitation.update({
+        where: { id: invitation.id },
+        data: { status: InvitationStatus.REJECTED },
+      });
+
+      return { success: true };
+    } catch (error) {
+      if (error instanceof TRPCError) throw error;
+
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to reject invitation",
+        cause: error,
+      });
+    }
+  },
+
+  /**
    * Remove a user from an organization
    */
   removeUser: async ({

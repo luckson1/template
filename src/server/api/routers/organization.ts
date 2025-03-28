@@ -204,8 +204,19 @@ export const organizationRouter = createTRPCRouter({
   // Add a new endpoint for getting invitation details by token
   getInvitationByToken: publicProcedure
     .input(z.object({ token: z.string() }))
-    .mutation(async ({ ctx, input }) => {
+    .query(async ({ ctx, input }) => {
       return organizationService.getInvitationByToken({
+        db: ctx.db,
+        token: input.token,
+      });
+    }),
+
+  // Add new endpoint for rejecting an invitation
+  rejectInvitation: protectedProcedure
+    .input(z.object({ token: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return organizationService.rejectInvitation({
+        user: ctx.session.user,
         db: ctx.db,
         token: input.token,
       });

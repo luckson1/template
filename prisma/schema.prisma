@@ -109,6 +109,7 @@ enum InvitationStatus {
     ACCEPTED
     EXPIRED
     REVOKED
+    REJECTED
 }
 
 model Invitation {
