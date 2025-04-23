@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import {
+  createTRPCRouter,
+  orgProtectedProcedure,
+  protectedProcedure,
+  publicProcedure,
+} from "../trpc";
 import { organizationService } from "../services/organization";
 import {
   createOrganizationSchema,
@@ -8,8 +13,16 @@ import {
   getOrganizationBySlugSchema,
   getUserOrganizationsSchema,
   addUserToOrganizationSchema,
+  deleteOrganizationSchema,
+  inviteUserSchema,
+  acceptInvitationSchema,
+  revokeInvitationSchema,
+  removeUserSchema,
+  updateUserRoleSchema,
+  setDefaultOrganizationSchema,
+  getInvitationByTokenSchema,
+  rejectInvitationSchema,
 } from "../schemas/organization.schema";
-import { OrganizationRole } from "@prisma/client";
 
 export const organizationRouter = createTRPCRouter({
   create: protectedProcedure
@@ -62,7 +75,7 @@ export const organizationRouter = createTRPCRouter({
     }),
 
   delete: protectedProcedure
-    .input(z.object({ id: z.string() }))
+    .input(deleteOrganizationSchema)
     .mutation(async ({ ctx, input }) => {
       return organizationService.delete({
         user: ctx.session.user,
@@ -71,26 +84,20 @@ export const organizationRouter = createTRPCRouter({
       });
     }),
 
-  invite: protectedProcedure
-    .input(
-      z.object({
-        organizationId: z.string(),
-        email: z.string().email("Invalid email format"),
-        role: z.nativeEnum(OrganizationRole).default(OrganizationRole.MEMBER),
-      }),
-    )
+  invite: orgProtectedProcedure
+    .input(inviteUserSchema)
     .mutation(async ({ ctx, input }) => {
       return organizationService.invite({
         user: ctx.session.user,
         db: ctx.db,
-        organizationId: input.organizationId,
+        organizationId: ctx.organizationId,
         email: input.email,
         role: input.role,
       });
     }),
 
   acceptInvitation: protectedProcedure
-    .input(z.object({ token: z.string() }))
+    .input(acceptInvitationSchema)
     .mutation(async ({ ctx, input }) => {
       return organizationService.acceptInvitation({
         user: ctx.session.user,
@@ -100,7 +107,7 @@ export const organizationRouter = createTRPCRouter({
     }),
 
   revokeInvitation: protectedProcedure
-    .input(z.object({ id: z.string() }))
+    .input(revokeInvitationSchema)
     .mutation(async ({ ctx, input }) => {
       return organizationService.revokeInvitation({
         user: ctx.session.user,
@@ -109,37 +116,31 @@ export const organizationRouter = createTRPCRouter({
       });
     }),
 
-  removeUser: protectedProcedure
-    .input(z.object({ organizationId: z.string(), userId: z.string() }))
+  removeUser: orgProtectedProcedure
+    .input(removeUserSchema)
     .mutation(async ({ ctx, input }) => {
       return organizationService.removeUser({
         user: ctx.session.user,
         db: ctx.db,
-        organizationId: input.organizationId,
+        organizationId: ctx.organizationId,
         userId: input.userId,
       });
     }),
 
-  updateUserRole: protectedProcedure
-    .input(
-      z.object({
-        organizationId: z.string(),
-        userId: z.string(),
-        role: z.nativeEnum(OrganizationRole),
-      }),
-    )
+  updateUserRole: orgProtectedProcedure
+    .input(updateUserRoleSchema)
     .mutation(async ({ ctx, input }) => {
       return organizationService.updateUserRole({
         user: ctx.session.user,
         db: ctx.db,
-        organizationId: input.organizationId,
+        organizationId: ctx.organizationId,
         userId: input.userId,
         role: input.role,
       });
     }),
 
   setDefaultOrganization: protectedProcedure
-    .input(z.object({ organizationId: z.string() }))
+    .input(setDefaultOrganizationSchema)
     .mutation(async ({ ctx, input }) => {
       return organizationService.setDefaultOrganization({
         user: ctx.session.user,
@@ -148,62 +149,35 @@ export const organizationRouter = createTRPCRouter({
       });
     }),
 
-  getMembers: protectedProcedure
-    .input(z.object({ organizationId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      return organizationService.getMembers({
-        user: ctx.session.user,
-        db: ctx.db,
-        organizationId: input.organizationId,
-      });
-    }),
+  getMembers: orgProtectedProcedure.query(async ({ ctx }) => {
+    return organizationService.getMembers({
+      user: ctx.session.user,
+      db: ctx.db,
+      organizationId: ctx.organizationId,
+    });
+  }),
 
-  getPendingInvitations: protectedProcedure
-    .input(z.object({ organizationId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      return organizationService.getPendingInvitations({
-        user: ctx.session.user,
-        db: ctx.db,
-        organizationId: input.organizationId,
-      });
-    }),
+  getPendingInvitations: orgProtectedProcedure.query(async ({ ctx }) => {
+    return organizationService.getPendingInvitations({
+      user: ctx.session.user,
+      db: ctx.db,
+      organizationId: ctx.organizationId,
+    });
+  }),
 
-  // Add user to organization (for testing purposes)
-  addUser: protectedProcedure
+  addUser: orgProtectedProcedure
     .input(addUserToOrganizationSchema)
     .mutation(async ({ ctx, input }) => {
-      const { organizationId, userId, role } = input;
-      const targetUserId = userId ?? ctx.session.user.id;
-
-      // Check if user is already a member
-      const existingMembership = await ctx.db.userOrganization.findUnique({
-        where: {
-          userId_organizationId: {
-            userId: targetUserId,
-            organizationId,
-          },
-        },
+      return organizationService.addUser({
+        user: ctx.session.user,
+        db: ctx.db,
+        organizationId: ctx.organizationId,
+        input,
       });
-
-      if (existingMembership) {
-        return { success: false, message: "User is already a member" };
-      }
-
-      // Add user to organization
-      await ctx.db.userOrganization.create({
-        data: {
-          userId: targetUserId,
-          organizationId,
-          role: role as OrganizationRole,
-        },
-      });
-
-      return { success: true };
     }),
 
-  // Add a new endpoint for getting invitation details by token
   getInvitationByToken: publicProcedure
-    .input(z.object({ token: z.string() }))
+    .input(getInvitationByTokenSchema)
     .query(async ({ ctx, input }) => {
       return organizationService.getInvitationByToken({
         db: ctx.db,
@@ -211,9 +185,8 @@ export const organizationRouter = createTRPCRouter({
       });
     }),
 
-  // Add new endpoint for rejecting an invitation
   rejectInvitation: protectedProcedure
-    .input(z.object({ token: z.string() }))
+    .input(rejectInvitationSchema)
     .mutation(async ({ ctx, input }) => {
       return organizationService.rejectInvitation({
         user: ctx.session.user,

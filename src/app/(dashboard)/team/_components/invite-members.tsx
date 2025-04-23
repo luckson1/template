@@ -101,7 +101,6 @@ export default function InviteMembers({
       // Send invitations sequentially
       for (const invitee of invitees) {
         await invite.mutateAsync({
-          organizationId,
           email: invitee.email,
           role: invitee.role,
         });

@@ -56,7 +56,7 @@ export function OrganizationMembers({
   const removeUser = api.organization.removeUser.useMutation({
     onSuccess: () => {
       toast.success("Member removed successfully");
-      void utils.organization.getMembers.invalidate({ organizationId });
+      void utils.organization.getMembers.invalidate();
       router.refresh();
       setIsLoading(null);
     },
@@ -69,7 +69,7 @@ export function OrganizationMembers({
   const updateUserRole = api.organization.updateUserRole.useMutation({
     onSuccess: () => {
       toast.success("Member role updated successfully");
-      void utils.organization.getMembers.invalidate({ organizationId });
+      void utils.organization.getMembers.invalidate();
       router.refresh();
       setIsLoading(null);
     },
@@ -82,13 +82,13 @@ export function OrganizationMembers({
   const handleRemoveUser = (userId: string) => {
     if (confirm("Are you sure you want to remove this member?")) {
       setIsLoading(userId);
-      removeUser.mutate({ organizationId, userId });
+      removeUser.mutate({ userId });
     }
   };
 
   const handleUpdateRole = (userId: string, role: OrganizationRole) => {
     setIsLoading(userId);
-    updateUserRole.mutate({ organizationId, userId, role });
+    updateUserRole.mutate({ userId, role });
   };
 
   const handleLeaveOrganization = () => {
@@ -98,7 +98,7 @@ export function OrganizationMembers({
       )
     ) {
       setIsLoading(currentUserId);
-      removeUser.mutate({ organizationId, userId: currentUserId });
+      removeUser.mutate({ userId: currentUserId });
     }
   };
 

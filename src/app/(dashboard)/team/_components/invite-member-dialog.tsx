@@ -79,7 +79,6 @@ export function InviteMemberDialog({
   function onSubmit(values: z.infer<typeof inviteFormSchema>) {
     setIsLoading(true);
     inviteUser.mutate({
-      organizationId,
       email: values.email,
       role: values.role as OrganizationRole,
     });

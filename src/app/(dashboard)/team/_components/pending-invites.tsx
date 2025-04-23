@@ -67,23 +67,19 @@ export default function PendingInvites({
   // Handle refresh button click
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await utils.organization.getPendingInvitations.invalidate({
-      organizationId,
-    });
+    await utils.organization.getPendingInvitations.invalidate();
     router.refresh();
     setIsRefreshing(false);
   };
 
   // Handle revoking an invitation
-  const useRevokeInvitation = (organizationId: string) => {
+  const useRevokeInvitation = () => {
     const router = useRouter();
     const utils = api.useUtils();
     const revokeInvitation = api.organization.revokeInvitation.useMutation({
       onSuccess: () => {
         toast.success("Invitation successfully revoked");
-        void utils.organization.getPendingInvitations.invalidate({
-          organizationId,
-        });
+        void utils.organization.getPendingInvitations.invalidate();
         router.refresh();
       },
       onError: (error) => {
@@ -96,7 +92,7 @@ export default function PendingInvites({
     };
   };
 
-  const handleRevokeInvite = useRevokeInvitation(organizationId);
+  const handleRevokeInvite = useRevokeInvitation();
 
   // Handle copying invite link
   const handleCopyInviteLink = (token: string) => {

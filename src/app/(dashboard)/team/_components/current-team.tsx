@@ -72,6 +72,7 @@ export default function CurrentTeam({
   // tRPC mutations
   const removeUser = api.organization.removeUser.useMutation({
     onSuccess: () => {
+      void utils.organization.getMembers.invalidate();
       toast.success("Member removed successfully");
       router.refresh();
     },
@@ -84,6 +85,7 @@ export default function CurrentTeam({
     onSuccess: () => {
       toast.success("Role updated successfully");
       router.refresh();
+      void utils.organization.getMembers.invalidate();
     },
     onError: (error) => {
       toast.error(error.message || "Failed to update role");
@@ -100,7 +102,6 @@ export default function CurrentTeam({
 
   const handleRemoveMember = (userId: string) => {
     removeUser.mutate({
-      organizationId,
       userId,
     });
     setRemovingUserId(null);
@@ -108,7 +109,6 @@ export default function CurrentTeam({
 
   const handleRoleChange = (userId: string, role: OrganizationRole) => {
     updateUserRole.mutate({
-      organizationId,
       userId,
       role,
     });

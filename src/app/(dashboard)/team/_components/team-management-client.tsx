@@ -31,19 +31,11 @@ export default function TeamManagementClient({
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const { selectedOrgId, organizations, selectedOrg, isLoading } =
-    useOrganization();
+  const { organizations, selectedOrg, isLoading } = useOrganization();
 
   // Fetch members for the selected organization
   const { data: members = [], isLoading: isMembersLoading } =
-    api.organization.getMembers.useQuery(
-      {
-        organizationId: selectedOrgId ?? "",
-      },
-      {
-        enabled: !!selectedOrgId,
-      },
-    );
+    api.organization.getMembers.useQuery();
 
   // Fetch pending invitations - only fetch if user is admin or owner
   const currentUserMember = members.find(
@@ -53,21 +45,16 @@ export default function TeamManagementClient({
   const isAdmin = currentUserMember?.role === "ADMIN" || isOwner;
 
   const { data: invitations = [], isLoading: isInvitationsLoading } =
-    api.organization.getPendingInvitations.useQuery(
-      {
-        organizationId: selectedOrgId ?? "",
-      },
-      {
-        enabled: !!selectedOrgId && isAdmin,
-      },
-    );
+    api.organization.getPendingInvitations.useQuery();
+  const numOfOrgs = organizations.length;
+  const hasOrgs = numOfOrgs > 0;
 
   // Redirect to organization create page if no organizations
   useEffect(() => {
-    if (!organizations.length && !isMembersLoading) {
+    if (!hasOrgs && !isMembersLoading && !isLoading) {
       router.push("/team/create");
     }
-  }, [organizations, isMembersLoading, router]);
+  }, [hasOrgs, isMembersLoading, router, isLoading]);
 
   if (isMembersLoading || isInvitationsLoading || isLoading) {
     return (

@@ -10,6 +10,7 @@ import {
 import {
   type CreateOrganization,
   type UpdateOrganization,
+  type IAddUserToOrganization,
 } from "../schemas/organization.schema";
 import { type Session } from "next-auth";
 import { emailService } from "../../services/email";
@@ -1326,6 +1327,72 @@ export const organizationService = {
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to fetch invitation details",
         cause: error,
+      });
+    }
+  },
+
+  /**
+   * Add a user to an organization (primarily for testing/manual addition)
+   */
+  addUser: async ({
+    user,
+    db,
+    organizationId,
+    input,
+  }: OrganizationServiceContext & {
+    organizationId: string;
+    input: IAddUserToOrganization;
+  }) => {
+    if (!user) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Authentication required",
+      });
+    }
+
+    const { userId, role } = input;
+    // If userId is not provided in input, use the invoking user's ID
+    const targetUserId = userId ?? user.id;
+
+    try {
+      // Check if user is already a member
+      const existingMembership = await db.userOrganization.findUnique({
+        where: {
+          userId_organizationId: {
+            userId: targetUserId,
+            organizationId: organizationId,
+          },
+        },
+      });
+
+      if (existingMembership) {
+        // Consider throwing CONFLICT or returning specific status
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "User is already a member of this organization",
+        });
+      }
+
+      // Add user to organization
+      await db.userOrganization.create({
+        data: {
+          userId: targetUserId,
+          organizationId: organizationId,
+          role: role, // Role comes from validated input
+        },
+      });
+
+      return { success: true };
+    } catch (error) {
+      if (error instanceof TRPCError) throw error;
+
+      // Log the error for debugging
+      console.error("Error adding user to organization:", error);
+
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to add user to organization",
+        cause: error, // Propagate original error cause if helpful
       });
     }
   },
