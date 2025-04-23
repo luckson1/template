@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-// Removed unused imports: useSearchParams, useRouter, usePathname
 import { api } from "@/trpc/react";
 
 const LOCAL_STORAGE_ORG_KEY = "selectedOrgId";
