@@ -3,10 +3,17 @@ import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/resend";
 import type { SystemRole } from "@prisma/client";
+import { Client as WorkflowClient } from "@upstash/workflow";
 
 import { env } from "@/env";
 import { db } from "@/server/db";
-import { organizationService } from "../api/services/organization";
+
+// --- Workflow Client Initialization ---
+// Ensure QSTASH_TOKEN and optional QSTASH_URL / UPSTASH_WORKFLOW_URL / NEXT_PUBLIC_APP_URL are in env
+const workflowClient = new WorkflowClient({
+  token: env.QSTASH_TOKEN,
+  baseUrl: env.QSTASH_URL, // Optional: Only needed for local QStash server
+});
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -81,18 +88,78 @@ export const authConfig = {
   },
   events: {
     createUser: async ({ user }) => {
-      // Create a default organization for the new user
+      // 1. Trigger the welcome email workflow
+      if (!user.email) {
+        console.warn(
+          `Cannot trigger welcome email for user ${user.id}: Email is missing.`,
+        );
+        return; // Stop if no email
+      }
+
       try {
-        if (user.id) {
-          await organizationService.createDefaultForUser({
+        const workflowRunId = `welcome-email-${user.id}-${Date.now()}`;
+        console.log(
+          `Triggering welcome email workflow ${workflowRunId} for user ${user.id}`,
+        );
+
+        // Construct the full URL for the workflow endpoint
+        const appBaseUrl = env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+        const workflowEndpointUrl = `${appBaseUrl}/api/workflow/send-welcome-email`;
+
+        await workflowClient.trigger({
+          url: workflowEndpointUrl,
+          body: {
             userId: user.id,
-            name: user.name,
-            db,
+            email: user.email, // Safe to use now after the check above
+            name: user.name ?? undefined, // Pass name if available
+          },
+          workflowRunId: workflowRunId,
+          retries: 2, // Retry trigger once if initial request fails
+        });
+        console.log(
+          `Welcome email workflow triggered successfully for user ${user.id}`,
+        );
+      } catch (workflowError) {
+        console.error(
+          `Failed to trigger welcome email workflow for user ${user.id}:`,
+          workflowError,
+        );
+      }
+
+      // 2. Trigger Default Organization Creation Workflow
+      if (user.id && user.name) {
+        try {
+          const orgWorkflowRunId = `create-org-${user.id}-${Date.now()}`;
+          console.log(
+            `Triggering default org creation workflow ${orgWorkflowRunId} for user ${user.id}`,
+          );
+
+          const appBaseUrl = env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+          const orgWorkflowEndpointUrl = `${appBaseUrl}/api/workflow/create-default-organization`;
+
+          await workflowClient.trigger({
+            url: orgWorkflowEndpointUrl,
+            body: {
+              userId: user.id,
+              name: user.name, // Name is checked above
+            },
+            workflowRunId: orgWorkflowRunId,
+            retries: 1, // Retry trigger once if initial request fails
           });
-          console.log(`Created default organization for user ${user.id}`);
+          console.log(
+            `Default org creation workflow triggered successfully for user ${user.id}`,
+          );
+        } catch (orgWorkflowError) {
+          console.error(
+            `Failed to trigger default org creation workflow for user ${user.id}:`,
+            orgWorkflowError,
+          );
+          // Log the error, but don't block sign-up
         }
-      } catch (error) {
-        console.error("Error creating default organization:", error);
+      } else {
+        console.warn(
+          `Skipping default org creation workflow trigger for user ${user.id}: Missing ID or name.`,
+        );
       }
     },
   },
